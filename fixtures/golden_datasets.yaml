@@ -1,0 +1,501 @@
+version: "1.0"
+created_date: "2026-03-17"
+
+datasets:
+  # ============================================
+  # EASY TESTS - SIMPLE AGGREGATIONS
+  # ============================================
+
+  - id: "test_simple_count"
+    category: "aggregation"
+    difficulty: "easy"
+    description: "Simple COUNT aggregation"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "How many transactions are in the dataset?"
+    expected_sql: "SELECT COUNT(*) as transaction_count FROM transactions"
+    expected_results:
+      - transaction_count: 2500
+    expected_answer_summary: "There are 2500 transactions in the dataset."
+    acceptable_variance: 0.0
+    priority: "high"
+    tags: ["count", "aggregation", "single-table"]
+
+  - id: "test_simple_sum"
+    category: "aggregation"
+    difficulty: "easy"
+    description: "Simple SUM aggregation"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "What is the total revenue from all transactions?"
+    expected_sql: "SELECT SUM(amount) as total_revenue FROM transactions"
+    expected_results:
+      - total_revenue: 1250000.0
+    expected_answer_summary: "The total revenue from all transactions is $1,250,000."
+    acceptable_variance: 0.05
+    priority: "high"
+    tags: ["sum", "aggregation", "single-table"]
+    notes: "Allow 5% variance due to rounding differences"
+
+  - id: "test_simple_avg"
+    category: "aggregation"
+    difficulty: "easy"
+    description: "Simple AVG aggregation"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "What is the average transaction amount?"
+    expected_sql: "SELECT AVG(amount) as avg_amount FROM transactions"
+    expected_results:
+      - avg_amount: 500.0
+    expected_answer_summary: "The average transaction amount is $500."
+    acceptable_variance: 0.05
+    priority: "high"
+    tags: ["average", "aggregation", "single-table"]
+
+  # ============================================
+  # EASY TESTS - FILTERING
+  # ============================================
+
+  - id: "test_filter_by_category"
+    category: "filtering"
+    difficulty: "easy"
+    description: "Filter by string column"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "Show me Electronics transactions"
+    expected_sql: "SELECT * FROM transactions WHERE category = 'Electronics' LIMIT 10"
+    expected_results:
+      - transaction_id: 1
+        category: "Electronics"
+      - transaction_id: 5
+        category: "Electronics"
+    expected_answer_summary: "Here are the Electronics transactions from the dataset, showing transaction IDs and details."
+    acceptable_variance: 0.0
+    priority: "high"
+    tags: ["filter", "where", "string-comparison"]
+    notes: "Exact results depend on data generation, showing structure only"
+
+  - id: "test_filter_by_amount"
+    category: "filtering"
+    difficulty: "easy"
+    description: "Filter by numeric value"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "Show me transactions over 1000 dollars"
+    expected_sql: "SELECT * FROM transactions WHERE amount > 1000 LIMIT 10"
+    expected_results:
+      - transaction_id: 10
+        amount: 1200.0
+      - transaction_id: 20
+        amount: 1500.0
+    expected_answer_summary: "Here are transactions with amounts exceeding $1000."
+    acceptable_variance: 0.0
+    priority: "high"
+    tags: ["filter", "numeric", "comparison"]
+
+  # ============================================
+  # MEDIUM TESTS - GROUPING
+  # ============================================
+
+  - id: "test_group_by_category"
+    category: "grouping"
+    difficulty: "medium"
+    description: "Group by single column with aggregation"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "What is the total revenue by product category?"
+    expected_sql: |
+      SELECT category, SUM(amount) as total_revenue
+      FROM transactions
+      GROUP BY category
+      ORDER BY total_revenue DESC
+    expected_results:
+      - category: "Electronics"
+        total_revenue: 350000.0
+      - category: "Clothing"
+        total_revenue: 300000.0
+      - category: "Food"
+        total_revenue: 250000.0
+      - category: "Home"
+        total_revenue: 200000.0
+      - category: "Sports"
+        total_revenue: 150000.0
+    expected_answer_summary: "Electronics leads with $350,000, followed by Clothing at $300,000, Food at $250,000, Home at $200,000, and Sports at $150,000."
+    acceptable_variance: 0.05
+    priority: "high"
+    tags: ["group-by", "aggregation", "sorting"]
+
+  - id: "test_group_by_with_count"
+    category: "grouping"
+    difficulty: "medium"
+    description: "Group by with COUNT"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "How many transactions are there for each category?"
+    expected_sql: |
+      SELECT category, COUNT(*) as num_transactions
+      FROM transactions
+      GROUP BY category
+      ORDER BY num_transactions DESC
+    expected_results:
+      - category: "Electronics"
+        num_transactions: 700
+      - category: "Clothing"
+        num_transactions: 600
+      - category: "Food"
+        num_transactions: 500
+      - category: "Home"
+        num_transactions: 400
+      - category: "Sports"
+        num_transactions: 300
+    expected_answer_summary: "Electronics has 700 transactions, Clothing has 600, Food has 500, Home has 400, and Sports has 300."
+    acceptable_variance: 0.0
+    priority: "high"
+    tags: ["group-by", "count", "frequency"]
+
+  # ============================================
+  # MEDIUM TESTS - JOINS
+  # ============================================
+
+  - id: "test_inner_join_revenue_by_region"
+    category: "join"
+    difficulty: "medium"
+    description: "Simple INNER JOIN with aggregation"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "Show revenue by region name"
+    expected_sql: |
+      SELECT r.name as region, SUM(t.amount) as total_revenue
+      FROM transactions t
+      INNER JOIN regions r ON t.region_id = r.region_id
+      GROUP BY r.name
+      ORDER BY total_revenue DESC
+    expected_results:
+      - region: "North America"
+        total_revenue: 500000.0
+      - region: "Europe"
+        total_revenue: 350000.0
+      - region: "Asia"
+        total_revenue: 250000.0
+      - region: "South America"
+        total_revenue: 100000.0
+      - region: "Africa"
+        total_revenue: 50000.0
+    expected_answer_summary: "North America leads with $500,000 in revenue, followed by Europe with $350,000."
+    acceptable_variance: 0.05
+    priority: "high"
+    tags: ["join", "aggregation", "group-by"]
+
+  - id: "test_multi_table_join"
+    category: "join"
+    difficulty: "medium"
+    description: "Join transactions with customers and regions"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "Show transactions with customer name and region name"
+    expected_sql: |
+      SELECT 
+        t.transaction_id, c.name as customer_name, r.name as region,
+        t.category, t.amount
+      FROM transactions t
+      JOIN customers c ON t.customer_id = c.customer_id
+      JOIN regions r ON t.region_id = r.region_id
+      LIMIT 10
+    expected_results:
+      - transaction_id: 1
+        customer_name: "Customer1"
+        region: "North America"
+        category: "Electronics"
+        amount: 500.0
+      - transaction_id: 2
+        customer_name: "Customer2"
+        region: "Europe"
+        category: "Clothing"
+        amount: 350.0
+    expected_answer_summary: "Here are transactions enriched with customer and region information."
+    acceptable_variance: 0.0
+    priority: "high"
+    tags: ["join", "multi-table", "denormalize"]
+
+  # ============================================
+  # HARD TESTS - COMPLEX ANALYTICS
+  # ============================================
+
+  - id: "test_revenue_by_region_category"
+    category: "complex"
+    difficulty: "hard"
+    description: "Multi-dimensional analysis"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "Show revenue, transaction count, and average amount by region and category"
+    expected_sql: |
+      SELECT 
+        r.name as region,
+        t.category,
+        COUNT(*) as num_transactions,
+        SUM(t.amount) as total_revenue,
+        AVG(t.amount) as avg_amount,
+        MAX(t.amount) as max_amount
+      FROM transactions t
+      JOIN regions r ON t.region_id = r.region_id
+      GROUP BY r.name, t.category
+      ORDER BY total_revenue DESC
+    expected_results:
+      - region: "North America"
+        category: "Electronics"
+        num_transactions: 200
+        total_revenue: 150000.0
+        avg_amount: 750.0
+        max_amount: 2000.0
+      - region: "North America"
+        category: "Clothing"
+        num_transactions: 180
+        total_revenue: 140000.0
+        avg_amount: 777.0
+        max_amount: 1800.0
+      - region: "Europe"
+        category: "Electronics"
+        num_transactions: 140
+        total_revenue: 105000.0
+        avg_amount: 750.0
+        max_amount: 1900.0
+    expected_answer_summary: "North America Electronics leads with 200 transactions and $150,000 revenue, followed by North America Clothing with 180 transactions and $140,000."
+    acceptable_variance: 0.05
+    priority: "high"
+    tags: ["complex", "multi-dimensional", "multiple-aggregations"]
+
+  - id: "test_high_value_customers"
+    category: "complex"
+    difficulty: "hard"
+    description: "Finding high-value customers with filters"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "List customers with lifetime value over 10000 dollars and at least 5 transactions"
+    expected_sql: |
+      SELECT 
+        c.customer_id,
+        c.name,
+        c.lifetime_value,
+        COUNT(t.transaction_id) as num_transactions,
+        SUM(t.amount) as total_amount
+      FROM customers c
+      LEFT JOIN transactions t ON c.customer_id = t.customer_id
+      GROUP BY c.customer_id, c.name, c.lifetime_value
+      HAVING SUM(t.amount) > 10000 AND COUNT(t.transaction_id) >= 5
+      ORDER BY total_amount DESC
+    expected_results:
+      - customer_id: 1
+        name: "John Smith"
+        lifetime_value: 25000.0
+        num_transactions: 15
+        total_amount: 20000.0
+      - customer_id: 2
+        name: "Jane Doe"
+        lifetime_value: 30000.0
+        num_transactions: 20
+        total_amount: 25000.0
+    expected_answer_summary: "There are 2 high-value customers: John Smith with $25,000 lifetime value and 15 transactions, and Jane Doe with $30,000 lifetime value and 20 transactions."
+    acceptable_variance: 0.05
+    priority: "high"
+    tags: ["complex", "having", "high-value"]
+
+  - id: "test_return_analysis"
+    category: "complex"
+    difficulty: "hard"
+    description: "Analyze returns vs regular transactions"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "Show return rate by category"
+    expected_sql: |
+      SELECT 
+        category,
+        COUNT(*) as total_transactions,
+        SUM(CASE WHEN is_return = true THEN 1 ELSE 0 END) as num_returns,
+        ROUND(100.0 * SUM(CASE WHEN is_return = true THEN 1 ELSE 0 END) / COUNT(*), 2) as return_rate_pct,
+        SUM(CASE WHEN is_return = true THEN amount ELSE 0 END) as return_value
+      FROM transactions
+      GROUP BY category
+      ORDER BY return_rate_pct DESC
+    expected_results:
+      - category: "Electronics"
+        total_transactions: 700
+        num_returns: 70
+        return_rate_pct: 10.0
+        return_value: 35000.0
+      - category: "Clothing"
+        total_transactions: 600
+        num_returns: 66
+        return_rate_pct: 11.0
+        return_value: 33000.0
+      - category: "Food"
+        total_transactions: 500
+        num_returns: 45
+        return_rate_pct: 9.0
+        return_value: 22500.0
+    expected_answer_summary: "Return rates vary by category, with Clothing at 11%, Electronics at 10%, and Food at 9%."
+    acceptable_variance: 0.05
+    priority: "high"
+    tags: ["complex", "case-when", "returns"]
+
+  # ============================================
+  # ADDITIONAL TEST CASES - EDGE CASES
+  # ============================================
+
+  - id: "test_distinct_categories"
+    category: "filtering"
+    difficulty: "easy"
+    description: "Get distinct values"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "What are the different product categories?"
+    expected_sql: "SELECT DISTINCT category FROM transactions ORDER BY category"
+    expected_results:
+      - category: "Clothing"
+      - category: "Electronics"
+      - category: "Food"
+      - category: "Home"
+      - category: "Sports"
+    expected_answer_summary: "There are 5 product categories: Clothing, Electronics, Food, Home, and Sports."
+    acceptable_variance: 0.0
+    priority: "medium"
+    tags: ["distinct", "filtering"]
+
+  - id: "test_min_max_amounts"
+    category: "aggregation"
+    difficulty: "medium"
+    description: "Find minimum and maximum values"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "What are the minimum and maximum transaction amounts?"
+    expected_sql: "SELECT MIN(amount) as min_amount, MAX(amount) as max_amount FROM transactions"
+    expected_results:
+      - min_amount: 5.0
+        max_amount: 2000.0
+    expected_answer_summary: "Transaction amounts range from $5 (minimum) to $2,000 (maximum)."
+    acceptable_variance: 0.0
+    priority: "medium"
+    tags: ["aggregation", "min-max"]
+
+  - id: "test_customer_count_active"
+    category: "filtering"
+    difficulty: "easy"
+    description: "Count active customers"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "How many customers are currently active?"
+    expected_sql: "SELECT COUNT(*) as active_customers FROM customers WHERE is_active = true"
+    expected_results:
+      - active_customers: 120
+    expected_answer_summary: "There are 120 active customers in the database."
+    acceptable_variance: 0.0
+    priority: "medium"
+    tags: ["count", "filtering", "active"]
+
+  - id: "test_top_10_transactions"
+    category: "sorting"
+    difficulty: "easy"
+    description: "Get top 10 largest transactions"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "Show the 10 largest transactions"
+    expected_sql: "SELECT * FROM transactions ORDER BY amount DESC LIMIT 10"
+    expected_results:
+      - transaction_id: 100
+        amount: 2000.0
+      - transaction_id: 101
+        amount: 1950.0
+      - transaction_id: 102
+        amount: 1900.0
+    expected_answer_summary: "The 10 largest transactions range from $2,000 down to approximately $1,600."
+    acceptable_variance: 0.0
+    priority: "medium"
+    tags: ["sorting", "top-n", "limit"]
+
+  - id: "test_region_names"
+    category: "filtering"
+    difficulty: "easy"
+    description: "List all regions"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "What are all the regions?"
+    expected_sql: "SELECT DISTINCT name FROM regions ORDER BY name"
+    expected_results:
+      - name: "Africa"
+      - name: "Asia"
+      - name: "Europe"
+      - name: "North America"
+      - name: "South America"
+    expected_answer_summary: "There are 5 geographic regions: Africa, Asia, Europe, North America, and South America."
+    acceptable_variance: 0.0
+    priority: "medium"
+    tags: ["distinct", "region"]
+
+  - id: "test_transactions_by_customer"
+    category: "grouping"
+    difficulty: "medium"
+    description: "Count transactions per customer"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "How many transactions does each customer have?"
+    expected_sql: |
+      SELECT c.customer_id, c.name, COUNT(t.transaction_id) as num_transactions
+      FROM customers c
+      LEFT JOIN transactions t ON c.customer_id = t.customer_id
+      GROUP BY c.customer_id, c.name
+      ORDER BY num_transactions DESC
+      LIMIT 10
+    expected_results:
+      - customer_id: 1
+        name: "Customer1"
+        num_transactions: 20
+      - customer_id: 2
+        name: "Customer2"
+        num_transactions: 18
+      - customer_id: 3
+        name: "Customer3"
+        num_transactions: 15
+    expected_answer_summary: "The top 10 customers have between 20 and 5 transactions each, with Customer1 leading at 20 transactions."
+    acceptable_variance: 0.0
+    priority: "medium"
+    tags: ["group-by", "left-join", "count"]
+
+  - id: "test_gold_tier_customers"
+    category: "filtering"
+    difficulty: "medium"
+    description: "Filter for Gold tier customers"
+    datasource:
+      path: "fixtures/transactions.parquet"
+      type: "parquet"
+    user_query: "Show all Gold tier customers"
+    expected_sql: "SELECT * FROM customers WHERE tier = 'Gold' ORDER BY lifetime_value DESC"
+    expected_results:
+      - customer_id: 5
+        name: "Premium Customer"
+        tier: "Gold"
+        lifetime_value: 50000.0
+      - customer_id: 10
+        name: "Valued Customer"
+        tier: "Gold"
+        lifetime_value: 45000.0
+    expected_answer_summary: "There are Gold tier customers with high lifetime values, starting with Premium Customer at $50,000."
+    acceptable_variance: 0.0
+    priority: "medium"
+    tags: ["filtering", "tier"]

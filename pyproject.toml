@@ -1,0 +1,57 @@
+[project]
+name = "query-engine"
+version = "0.1.0"
+description = "Natural language to SQL query engine powered by LangChain and DuckDB"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb>=1.5.0",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.0.0",
+    "pyyaml>=6.0.3",
+    "python-dotenv>=1.0.0",
+    "ipykernel>=7.2.0",
+    # LangChain core + provider packages
+    "langchain>=0.3.0",
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.3.0",
+    "langchain-anthropic>=0.3.0",
+    "langchain-community>=0.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-mock>=3.12.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
+    "ipython>=8.0.0",
+    "jupyter>=1.0.0",
+    "pandas>=2.0.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "RUF"]
+ignore = ["E501"]  # Line too long (handled by formatter)
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "--cov=src/query_engine --cov-report=term-missing --strict-markers"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

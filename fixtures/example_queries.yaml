@@ -1,0 +1,327 @@
+# Example Query Patterns for Query Engine
+# These are used to provide context to the LLM for SQL generation
+
+version: 1.0
+created_date: 2026-03-17
+
+examples:
+  # ============================================
+  # SIMPLE AGGREGATION EXAMPLES
+  # ============================================
+  - id: "simple_count"
+    category: "aggregation"
+    difficulty: "easy"
+    description: "Simple COUNT aggregation"
+    question: "How many transactions are in the dataset?"
+    sql: "SELECT COUNT(*) as transaction_count FROM transactions"
+    explanation: "Basic COUNT aggregation without WHERE clause"
+    tags: ["count", "aggregation", "single-table"]
+
+  - id: "simple_sum"
+    category: "aggregation"
+    difficulty: "easy"
+    description: "Simple SUM aggregation"
+    question: "What is the total revenue from all transactions?"
+    sql: "SELECT SUM(amount) as total_revenue FROM transactions"
+    explanation: "Basic SUM aggregation to calculate totals"
+    tags: ["sum", "aggregation", "single-table"]
+
+  - id: "simple_avg"
+    category: "aggregation"
+    difficulty: "easy"
+    description: "Simple AVG aggregation"
+    question: "What is the average transaction amount?"
+    sql: "SELECT AVG(amount) as avg_amount FROM transactions"
+    explanation: "AVG function to calculate average values"
+    tags: ["average", "aggregation", "single-table"]
+
+  # ============================================
+  # FILTERING EXAMPLES
+  # ============================================
+  - id: "filter_by_category"
+    category: "filtering"
+    difficulty: "easy"
+    description: "Filter by string column"
+    question: "Show me all Electronics transactions"
+    sql: "SELECT * FROM transactions WHERE category = 'Electronics' LIMIT 10"
+    explanation: "Simple WHERE clause filtering on category column"
+    tags: ["filter", "where", "string-comparison"]
+
+  - id: "filter_by_date_range"
+    category: "filtering"
+    difficulty: "easy"
+    description: "Filter by date range"
+    question: "Show transactions from February 2024"
+    sql: |
+      SELECT * FROM transactions 
+      WHERE date >= '2024-02-01' AND date < '2024-03-01'
+      LIMIT 10
+    explanation: "Date range filtering using >= and < operators"
+    tags: ["filter", "date", "range"]
+
+  - id: "filter_by_amount"
+    category: "filtering"
+    difficulty: "easy"
+    description: "Filter by numeric value"
+    question: "Show me transactions over 1000 dollars"
+    sql: "SELECT * FROM transactions WHERE amount > 1000 LIMIT 10"
+    explanation: "Numeric comparison using > operator"
+    tags: ["filter", "numeric", "comparison"]
+
+  # ============================================
+  # GROUP BY EXAMPLES
+  # ============================================
+  - id: "group_by_category"
+    category: "grouping"
+    difficulty: "medium"
+    description: "Group by single column with aggregation"
+    question: "What is the total revenue by product category?"
+    sql: |
+      SELECT category, SUM(amount) as total_revenue
+      FROM transactions
+      GROUP BY category
+      ORDER BY total_revenue DESC
+    explanation: "GROUP BY with SUM aggregation and ORDER BY DESC"
+    tags: ["group-by", "aggregation", "sorting"]
+
+  - id: "group_by_with_count"
+    category: "grouping"
+    difficulty: "medium"
+    description: "Group by with COUNT"
+    question: "How many transactions are there for each category?"
+    sql: |
+      SELECT category, COUNT(*) as num_transactions
+      FROM transactions
+      GROUP BY category
+      ORDER BY num_transactions DESC
+    explanation: "COUNT(*) with GROUP BY to show transaction frequency"
+    tags: ["group-by", "count", "frequency"]
+
+  - id: "group_by_region_customer"
+    category: "grouping"
+    difficulty: "medium"
+    description: "Group by multiple columns"
+    question: "Show total revenue by region and category"
+    sql: |
+      SELECT r.name as region, t.category, SUM(t.amount) as revenue
+      FROM transactions t
+      JOIN regions r ON t.region_id = r.region_id
+      GROUP BY r.name, t.category
+      ORDER BY revenue DESC
+    explanation: "Multi-column GROUP BY with JOIN"
+    tags: ["group-by", "multi-column", "join"]
+
+  # ============================================
+  # SORTING/LIMITING EXAMPLES
+  # ============================================
+  - id: "top_n_results"
+    category: "sorting"
+    difficulty: "easy"
+    description: "Get top N results"
+    question: "Show the 10 largest transactions"
+    sql: |
+      SELECT * FROM transactions
+      ORDER BY amount DESC
+      LIMIT 10
+    explanation: "ORDER BY DESC with LIMIT to get top results"
+    tags: ["limit", "order-by", "top-n"]
+
+  - id: "bottom_n_results"
+    category: "sorting"
+    difficulty: "easy"
+    description: "Get bottom N results"
+    question: "Show the 5 smallest transactions"
+    sql: |
+      SELECT * FROM transactions
+      ORDER BY amount ASC
+      LIMIT 5
+    explanation: "ORDER BY ASC to get smallest values"
+    tags: ["limit", "order-by", "bottom-n"]
+
+  # ============================================
+  # JOIN EXAMPLES
+  # ============================================
+  - id: "simple_inner_join"
+    category: "join"
+    difficulty: "medium"
+    description: "Simple INNER JOIN with aggregation"
+    question: "Show revenue by region name"
+    sql: |
+      SELECT r.name as region, SUM(t.amount) as total_revenue
+      FROM transactions t
+      INNER JOIN regions r ON t.region_id = r.region_id
+      GROUP BY r.name
+      ORDER BY total_revenue DESC
+    explanation: "INNER JOIN with GROUP BY and SUM"
+    tags: ["join", "aggregation", "group-by"]
+
+  - id: "multi_table_join"
+    category: "join"
+    difficulty: "medium"
+    description: "Join transactions with customers and regions"
+    question: "Show transactions with customer name and region name"
+    sql: |
+      SELECT 
+        t.transaction_id, c.name as customer_name, r.name as region,
+        t.category, t.amount
+      FROM transactions t
+      JOIN customers c ON t.customer_id = c.customer_id
+      JOIN regions r ON t.region_id = r.region_id
+      LIMIT 10
+    explanation: "Multiple JOINs to denormalize data"
+    tags: ["join", "multi-table", "denormalize"]
+
+  - id: "left_join_example"
+    category: "join"
+    difficulty: "medium"
+    description: "LEFT JOIN to include null values"
+    question: "Show all customers and their total spending (including inactive)"
+    sql: |
+      SELECT c.name, c.is_active, SUM(t.amount) as total_spent
+      FROM customers c
+      LEFT JOIN transactions t ON c.customer_id = t.customer_id
+      GROUP BY c.customer_id, c.name, c.is_active
+      ORDER BY total_spent DESC NULLS LAST
+    explanation: "LEFT JOIN preserves all customers even with no transactions"
+    tags: ["join", "left-join", "nulls"]
+
+  # ============================================
+  # COMPLEX ANALYTICAL QUERIES
+  # ============================================
+  - id: "revenue_by_region_category"
+    category: "complex"
+    difficulty: "hard"
+    description: "Multi-dimensional analysis"
+    question: "Show revenue, transaction count, and average amount by region and category"
+    sql: |
+      SELECT 
+        r.name as region,
+        t.category,
+        COUNT(*) as num_transactions,
+        SUM(t.amount) as total_revenue,
+        AVG(t.amount) as avg_amount,
+        MAX(t.amount) as max_amount
+      FROM transactions t
+      JOIN regions r ON t.region_id = r.region_id
+      GROUP BY r.name, t.category
+      ORDER BY total_revenue DESC
+    explanation: "Multiple aggregations with multi-column GROUP BY"
+    tags: ["complex", "multi-dimensional", "multiple-aggregations"]
+
+  - id: "customer_segmentation"
+    category: "complex"
+    difficulty: "hard"
+    description: "Customer tier analysis with filtering"
+    question: "Show spending analysis for Gold tier customers who are active"
+    sql: |
+      SELECT 
+        c.name,
+        c.tier,
+        COUNT(t.transaction_id) as num_transactions,
+        SUM(t.amount) as total_spent,
+        AVG(t.amount) as avg_transaction,
+        MAX(t.amount) as largest_transaction,
+        MIN(t.amount) as smallest_transaction
+      FROM customers c
+      LEFT JOIN transactions t ON c.customer_id = t.customer_id
+      WHERE c.tier = 'Gold' AND c.is_active = true
+      GROUP BY c.customer_id, c.name, c.tier
+      ORDER BY total_spent DESC
+    explanation: "Complex customer analysis with multiple conditions"
+    tags: ["complex", "segmentation", "multiple-conditions"]
+
+  - id: "high_value_customers"
+    category: "complex"
+    difficulty: "hard"
+    description: "Finding high-value customers with filters"
+    question: "List customers with lifetime value over 10000 dollars and at least 5 transactions"
+    sql: |
+      SELECT 
+        c.customer_id,
+        c.name,
+        c.lifetime_value,
+        COUNT(t.transaction_id) as num_transactions,
+        SUM(t.amount) as total_amount
+      FROM customers c
+      LEFT JOIN transactions t ON c.customer_id = t.customer_id
+      GROUP BY c.customer_id, c.name, c.lifetime_value
+      HAVING SUM(t.amount) > 10000 AND COUNT(t.transaction_id) >= 5
+      ORDER BY total_amount DESC
+    explanation: "HAVING clause to filter aggregated results"
+    tags: ["complex", "having", "high-value"]
+
+  - id: "return_analysis"
+    category: "complex"
+    difficulty: "hard"
+    description: "Analyze returns vs regular transactions"
+    question: "Show return rate by category"
+    sql: |
+      SELECT 
+        category,
+        COUNT(*) as total_transactions,
+        SUM(CASE WHEN is_return = true THEN 1 ELSE 0 END) as num_returns,
+        ROUND(100.0 * SUM(CASE WHEN is_return = true THEN 1 ELSE 0 END) / COUNT(*), 2) as return_rate_pct,
+        SUM(CASE WHEN is_return = true THEN amount ELSE 0 END) as return_value
+      FROM transactions
+      GROUP BY category
+      ORDER BY return_rate_pct DESC
+    explanation: "Using CASE WHEN for conditional aggregation"
+    tags: ["complex", "case-when", "returns"]
+
+  - id: "quarterly_comparison"
+    category: "complex"
+    difficulty: "hard"
+    description: "Compare quarters with date functions"
+    question: "Show quarterly revenue and growth comparison"
+    sql: |
+      SELECT 
+        QUARTER(date) as quarter,
+        EXTRACT(YEAR FROM date) as year,
+        SUM(amount) as quarterly_revenue,
+        COUNT(*) as transaction_count,
+        AVG(amount) as avg_amount
+      FROM transactions
+      GROUP BY EXTRACT(YEAR FROM date), QUARTER(date)
+      ORDER BY year DESC, quarter DESC
+    explanation: "Date functions QUARTER and EXTRACT with grouping"
+    tags: ["complex", "date-functions", "time-series"]
+
+  - id: "profit_analysis"
+    category: "complex"
+    difficulty: "hard"
+    description: "Profit margin analysis by category"
+    question: "Which category has the highest profit margin and is it growing?"
+    sql: |
+      SELECT 
+        category,
+        COUNT(*) as num_transactions,
+        SUM(amount) as total_revenue,
+        SUM(profit_margin) as total_profit,
+        ROUND(AVG(profit_margin), 2) as avg_profit_margin,
+        ROUND(SUM(profit_margin) / SUM(amount) * 100, 2) as profit_margin_pct
+      FROM transactions
+      GROUP BY category
+      ORDER BY profit_margin_pct DESC
+    explanation: "Profit analysis with percentage calculations"
+    tags: ["complex", "profit", "margin-analysis"]
+
+  - id: "customer_region_spend"
+    category: "complex"
+    difficulty: "hard"
+    description: "Top customers by region"
+    question: "Show the top 3 spenders in each region"
+    sql: |
+      SELECT 
+        r.name as region,
+        c.name as customer_name,
+        SUM(t.amount) as total_spent,
+        COUNT(t.transaction_id) as num_purchases,
+        AVG(t.amount) as avg_purchase
+      FROM transactions t
+      JOIN customers c ON t.customer_id = c.customer_id
+      JOIN regions r ON t.region_id = r.region_id
+      GROUP BY r.name, c.customer_id, c.name
+      ORDER BY r.name, total_spent DESC
+      LIMIT 30
+    explanation: "Top N per group analysis"
+    tags: ["complex", "top-n", "window-functions"]
