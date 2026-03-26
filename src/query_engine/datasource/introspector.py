@@ -56,6 +56,9 @@ class DataSourceIntrospector:
             except ValueError:
                 raise SchemaError(f"Unknown datasource type: {hint}")
 
+        if os.path.isdir(path):
+            return DataSourceType.DIRECTORY
+
         # Infer from extension
         ext = os.path.splitext(path)[1].lower()
         if ext == ".parquet":
@@ -74,7 +77,10 @@ class DataSourceIntrospector:
             DuckDB connection
         """
         if self._connection is None:
-            self._connection = duckdb.connect(":memory:")
+            if getattr(self, "datasource_type", None) == DataSourceType.DUCKDB:
+                self._connection = duckdb.connect(self.path)
+            else:
+                self._connection = duckdb.connect(":memory:")
         return self._connection
 
     def introspect(self, name: str = "", description: str | None = None) -> DataSourceSchema:
@@ -96,14 +102,24 @@ class DataSourceIntrospector:
 
         try:
             # Register the datasource
+            safe_path = self.path.replace("\\", "/")
             if self.datasource_type == DataSourceType.PARQUET:
                 table_name = os.path.splitext(os.path.basename(self.path))[0]
-                conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{self.path}'")
+                conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{safe_path}'")
                 tables = [table_name]
             elif self.datasource_type == DataSourceType.CSV:
                 table_name = os.path.splitext(os.path.basename(self.path))[0]
-                conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{self.path}'")
+                conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{safe_path}'")
                 tables = [table_name]
+            elif self.datasource_type == DataSourceType.DIRECTORY:
+                tables = []
+                for file in os.listdir(self.path):
+                    ext = os.path.splitext(file)[1].lower()
+                    if ext in [".parquet", ".csv"]:
+                        table_name = os.path.splitext(file)[0]
+                        file_path = os.path.join(self.path, file).replace("\\", "/")
+                        conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{file_path}'")
+                        tables.append(table_name)
             elif self.datasource_type == DataSourceType.DUCKDB:
                 # For DuckDB, get existing tables
                 result = conn.execute(

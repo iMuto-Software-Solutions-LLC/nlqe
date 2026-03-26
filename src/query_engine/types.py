@@ -12,6 +12,7 @@ class DataSourceType(StrEnum):
     PARQUET = "parquet"
     CSV = "csv"
     DUCKDB = "duckdb"
+    DIRECTORY = "directory"
 
 
 class TableInfo(BaseModel):

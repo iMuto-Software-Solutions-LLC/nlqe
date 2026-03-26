@@ -49,8 +49,13 @@ class DuckDBExecutor:
             DuckDB connection
         """
         if self._connection is None:
-            self._connection = duckdb.connect(":memory:")
-            self._setup_datasource()
+            import os
+
+            if os.path.isfile(self.datasource_path) and self.datasource_path.endswith(".duckdb"):
+                self._connection = duckdb.connect(self.datasource_path)
+            else:
+                self._connection = duckdb.connect(":memory:")
+                self._setup_datasource()
         return self._connection
 
     def _setup_datasource(self) -> None:
@@ -59,20 +64,33 @@ class DuckDBExecutor:
         if conn is None:
             raise RuntimeError("Connection not initialized")
 
-        # Determine table name from file path
         import os
 
+        if os.path.isdir(self.datasource_path):
+            for file in os.listdir(self.datasource_path):
+                ext = os.path.splitext(file)[1].lower()
+                if ext in [".parquet", ".csv"]:
+                    table_name = os.path.splitext(file)[0]
+                    file_path = os.path.join(self.datasource_path, file).replace("\\", "/")
+                    conn.execute(
+                        f"CREATE TABLE {table_name} AS SELECT * FROM '{file_path}'"
+                    )
+            logger.info(f"Loaded directory datasource {self.datasource_path}")
+            return
+
+        # Determine table name from file path
         self._table_name = os.path.splitext(os.path.basename(self.datasource_path))[0]
+        safe_path = self.datasource_path.replace("\\", "/")
 
         # Load based on file type
         if self.datasource_path.endswith(".parquet"):
             conn.execute(
-                f"CREATE TABLE {self._table_name} AS SELECT * FROM '{self.datasource_path}'"
+                f"CREATE TABLE {self._table_name} AS SELECT * FROM '{safe_path}'"
             )
             logger.info(f"Loaded parquet datasource into table {self._table_name}")
         elif self.datasource_path.endswith(".csv"):
             conn.execute(
-                f"CREATE TABLE {self._table_name} AS SELECT * FROM '{self.datasource_path}'"
+                f"CREATE TABLE {self._table_name} AS SELECT * FROM '{safe_path}'"
             )
             logger.info(f"Loaded CSV datasource into table {self._table_name}")
         else:
