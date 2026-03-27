@@ -125,7 +125,7 @@ class DuckDBExecutor:
             conn.execute(f"EXPLAIN {sql}")
         except Exception as e:
             error_msg = str(e)
-            if "not found" in error_msg.lower():
+            if "not found" in error_msg.lower() or "does not exist" in error_msg.lower():
                 issues.append(f"Schema error: {error_msg}")
             else:
                 issues.append(f"SQL syntax error: {error_msg}")

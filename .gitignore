@@ -11,3 +11,4 @@ wheels/
 .idea/
 .jbeval
 .env
+/reports/evaluation_report.csv
