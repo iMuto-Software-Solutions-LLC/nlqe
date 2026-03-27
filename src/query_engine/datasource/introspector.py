@@ -194,8 +194,9 @@ class DataSourceIntrospector:
 
     def close(self) -> None:
         """Close database connection."""
-        if getattr(self, "_connection", None) is not None:
-            self._connection.close()
+        conn = getattr(self, "_connection", None)
+        if conn is not None:
+            conn.close()
             self._connection = None
 
     def __del__(self) -> None:

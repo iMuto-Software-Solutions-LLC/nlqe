@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import (
@@ -251,11 +251,11 @@ class LLMClient:
         # ```sql ... ```
         m = re.findall(r"```sql\n(.*?)\n```", response, re.DOTALL)
         if m:
-            return m[0].strip()
+            return str(m[0]).strip()
         # ``` ... ```
         m = re.findall(r"```\n(.*?)\n```", response, re.DOTALL)
         if m:
-            return m[0].strip()
+            return str(m[0]).strip()
         # bare string
         sql = response.strip()
         if sql:
@@ -300,7 +300,7 @@ def openai_client(
         api_key=api_key,  # type: ignore[arg-type]
         model=model,
         temperature=temperature,
-        max_tokens=max_tokens,
+        max_tokens=max_tokens,  # type: ignore[call-arg]
     )
     return LLMClient(llm, few_shot_examples=few_shot_examples)
 
@@ -328,9 +328,9 @@ def anthropic_client(
 
     llm = ChatAnthropic(
         api_key=api_key,  # type: ignore[arg-type]
-        model=model,
+        model=model,  # type: ignore[call-arg]
         temperature=temperature,
-        max_tokens=max_tokens,
+        max_tokens=max_tokens,  # type: ignore[call-arg]
     )
     return LLMClient(llm, few_shot_examples=few_shot_examples)
 
