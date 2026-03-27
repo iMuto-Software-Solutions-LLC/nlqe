@@ -1,4 +1,4 @@
-# Query Engine
+# NLQE (Natural Language Query Engine)
 
 A natural language to SQL query engine powered by [LangChain](https://python.langchain.com/) and DuckDB. Ask questions about your data in plain English — works with OpenAI, Anthropic, or any LangChain-compatible model.
 

@@ -72,9 +72,7 @@ class DuckDBExecutor:
                 if ext in [".parquet", ".csv"]:
                     table_name = os.path.splitext(file)[0]
                     file_path = os.path.join(self.datasource_path, file).replace("\\", "/")
-                    conn.execute(
-                        f"CREATE TABLE {table_name} AS SELECT * FROM '{file_path}'"
-                    )
+                    conn.execute(f"CREATE TABLE {table_name} AS SELECT * FROM '{file_path}'")
             logger.info(f"Loaded directory datasource {self.datasource_path}")
             return
 
@@ -84,14 +82,10 @@ class DuckDBExecutor:
 
         # Load based on file type
         if self.datasource_path.endswith(".parquet"):
-            conn.execute(
-                f"CREATE TABLE {self._table_name} AS SELECT * FROM '{safe_path}'"
-            )
+            conn.execute(f"CREATE TABLE {self._table_name} AS SELECT * FROM '{safe_path}'")
             logger.info(f"Loaded parquet datasource into table {self._table_name}")
         elif self.datasource_path.endswith(".csv"):
-            conn.execute(
-                f"CREATE TABLE {self._table_name} AS SELECT * FROM '{safe_path}'"
-            )
+            conn.execute(f"CREATE TABLE {self._table_name} AS SELECT * FROM '{safe_path}'")
             logger.info(f"Loaded CSV datasource into table {self._table_name}")
         else:
             raise RuntimeError(f"Unsupported datasource format: {self.datasource_path}")
