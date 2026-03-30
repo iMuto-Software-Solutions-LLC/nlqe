@@ -10,8 +10,12 @@ jobs:
   build-and-publish:
     name: Build and Publish
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/query-engine
     permissions:
       id-token: write  # Necessary for trusted publishing
+      contents: read   # Required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
