@@ -6,9 +6,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from query_engine.query.loop import QueryLoop
-from query_engine.types import QueryResponse
-from query_engine.utils import DebugFailedError, SQLSchemaError, SQLSyntaxError
+from nlqe.query.loop import QueryLoop
+from nlqe.types import QueryResponse
+from nlqe.utils import DebugFailedError, SQLSchemaError, SQLSyntaxError
 
 
 def _make_loop(
@@ -153,14 +153,14 @@ class TestCalculateConfidence:
         assert score == pytest.approx(0.95)
 
     def test_penalty_for_debug_attempts(self) -> None:
-        from query_engine.types import DebugInfo
+        from nlqe.types import DebugInfo
 
         di = DebugInfo(attempts=2, errors=["e"], modified_sqls=[], first_error="e")
         score = QueryLoop._calculate_confidence([{"x": 1}], di, 100.0)
         assert score == pytest.approx(0.8)
 
     def test_clamped_to_zero(self) -> None:
-        from query_engine.types import DebugInfo
+        from nlqe.types import DebugInfo
 
         di = DebugInfo(attempts=10, errors=["e"], modified_sqls=[], first_error="e")
         score = QueryLoop._calculate_confidence([], di, 9999.0)

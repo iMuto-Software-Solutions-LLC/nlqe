@@ -1,4 +1,4 @@
-# Query Engine: Architecture Document
+# NLQE: Architecture Document
 
 **Version**: v1.0.0  
 **Last Updated**: March 17, 2026  
@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document provides detailed technical architecture for the Query Engine. It describes component interactions, data models, state management patterns, and integration points. See [DESIGN.md](./DESIGN.md) for high-level overview and design philosophy.
+This document provides detailed technical architecture for the NLQE. It describes component interactions, data models, state management patterns, and integration points. See [DESIGN.md](./DESIGN.md) for high-level overview and design philosophy.
 
 ---
 
@@ -647,14 +647,14 @@ User
 **Public API** (what users import):
 
 ```
-from query_engine import (
+from nlqe import (
     QueryEngine,
     QueryResponse,
     ConversationManager,
     QueryEngineConfig,
 )
 
-from query_engine.testing import (
+from nlqe.testing import (
     Evaluator,
     EvaluationMetrics,
     GoldenDataset,
@@ -663,10 +663,10 @@ from query_engine.testing import (
 
 **Internal Modules** (not part of public API):
 
-- `query_engine.openai.*` (internal integration)
-- `query_engine.duckdb.*` (internal integration)
-- `query_engine.query.*` (internal loop logic)
-- `query_engine.utils.*` (internal utilities)
+- `nlqe.openai.*` (internal integration)
+- `nlqe.duckdb.*` (internal integration)
+- `nlqe.query.*` (internal loop logic)
+- `nlqe.utils.*` (internal utilities)
 
 ---
 

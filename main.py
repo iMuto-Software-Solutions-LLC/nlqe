@@ -1,5 +1,5 @@
 def main():
-    print("Hello from query-engine!")
+    print("Hello from nlqe!")
 
 
 if __name__ == "__main__":

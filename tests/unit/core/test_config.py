@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from query_engine.config import QueryEngineConfig
+from nlqe.config import QueryEngineConfig
 
 
 class TestQueryEngineConfig:
@@ -21,7 +21,7 @@ class TestQueryEngineConfig:
 
     def test_openai_key_can_be_empty_string(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # Prevent .env file from injecting a real key
-        monkeypatch.delenv("QUERY_ENGINE_OPENAI_API_KEY", raising=False)
+        monkeypatch.delenv("NLQE_OPENAI_API_KEY", raising=False)
         cfg = QueryEngineConfig(_env_file=None)  # type: ignore[call-arg]
         assert cfg.openai_api_key == ""
 

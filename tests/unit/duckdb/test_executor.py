@@ -1,7 +1,7 @@
 import pytest
 
-from query_engine.duckdb.executor import DuckDBExecutor
-from query_engine.utils import (
+from nlqe.duckdb.executor import DuckDBExecutor
+from nlqe.utils import (
     SQLSafetyError,
     SQLSchemaError,
     SQLSyntaxError,

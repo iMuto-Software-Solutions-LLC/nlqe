@@ -1,9 +1,9 @@
 [run]
 omit =
-    src/query_engine/openai/client.py
-    src/query_engine/openai/__init__.py
-    src/query_engine/testing/__init__.py
-    src/query_engine/utils/logging.py
+    src/nlqe/openai/client.py
+    src/nlqe/openai/__init__.py
+    src/nlqe/testing/__init__.py
+    src/nlqe/utils/logging.py
     
 [report]
 exclude_lines =

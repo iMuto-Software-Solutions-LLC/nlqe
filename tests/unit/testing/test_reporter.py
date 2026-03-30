@@ -3,15 +3,15 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from query_engine.testing.datasets import GoldenTestCase
-from query_engine.testing.evaluator import Evaluator, TestCaseResult
-from query_engine.testing.metrics import (
+from nlqe.testing.datasets import GoldenTestCase
+from nlqe.testing.evaluator import Evaluator, TestCaseResult
+from nlqe.testing.metrics import (
     AnswerQualityMetric,
     ConfidenceCalibration,
     EvaluationMetrics,
     ResultCorrectnessMetric,
 )
-from query_engine.testing.reporter import ReportGenerator
+from nlqe.testing.reporter import ReportGenerator
 
 
 @pytest.fixture
@@ -172,7 +172,7 @@ def test_generate_markdown_report(tmp_path, mock_evaluator, mock_metrics):
 
     with open(output_path) as f:
         content = f.read()
-        assert "# Query Engine Evaluation Report" in content
+        assert "# NLQE Evaluation Report" in content
         assert "Total Tests**: 2" in content
         assert "Passed**: 1" in content
         assert "|cat1|2|1|80.00%|" in content

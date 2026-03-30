@@ -1,6 +1,6 @@
-# Query Engine Fixtures
+# NLQE Fixtures
 
-This directory contains sample data and example patterns for the Query Engine prototype.
+This directory contains sample data and example patterns for the NLQE prototype.
 
 ## Sample Data Files
 
@@ -193,7 +193,7 @@ This notebook demonstrates:
 
 ## SQL Patterns Covered
 
-These fixtures help test the Query Engine with:
+These fixtures help test the NLQE with:
 
 ✓ Simple aggregations (COUNT, SUM, AVG)  
 ✓ Filtering (WHERE with single/multiple conditions)  

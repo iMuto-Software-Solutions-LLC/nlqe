@@ -1,4 +1,4 @@
-from query_engine.synthesis.answer import AnswerSynthesizer
+from nlqe.synthesis.answer import AnswerSynthesizer
 
 
 def test_format_answer():

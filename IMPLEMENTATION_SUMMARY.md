@@ -1,4 +1,4 @@
-# Query Engine - Phase 1 Implementation Summary
+# NLQE - Phase 1 Implementation Summary
 
 **Status**: ✅ COMPLETE  
 **Date**: March 17, 2026  
@@ -8,11 +8,11 @@
 
 ## Overview
 
-Successfully implemented a **fully-functional, production-ready foundation** for the Query Engine - a natural language to SQL query tool powered by OpenAI and DuckDB.
+Successfully implemented a **fully-functional, production-ready foundation** for the NLQE - a natural language to SQL query tool powered by OpenAI and DuckDB.
 
-### What is Query Engine?
+### What is NLQE?
 
-Query Engine translates plain English questions into SQL queries executed against structured data (Parquet, CSV). It combines:
+NLQE translates plain English questions into SQL queries executed against structured data (Parquet, CSV). It combines:
 
 - **Large Language Models** (OpenAI) for SQL generation
 - **DuckDB** for in-process, flexible query execution
@@ -25,7 +25,7 @@ The result: business users can ask data questions in plain English without SQL k
 
 ## Deliverables
 
-### 1. Core Package (`src/query_engine/`)
+### 1. Core Package (`src/nlqe/`)
 
 A fully-typed, importable Python package with:
 
@@ -278,7 +278,7 @@ jupyter notebook prototype_advanced.ipynb
 ### API Usage
 
 ```python
-from query_engine import QueryEngine, QueryEngineConfig
+from nlqe import QueryEngine, QueryEngineConfig
 
 # Initialize
 config = QueryEngineConfig.from_env()
@@ -412,8 +412,8 @@ Week 2-3 deliverables:
 ## File Structure
 
 ```
-query-engine/
-├── src/query_engine/           # Main package
+nlqe/
+├── src/nlqe/           # Main package
 │   ├── __init__.py
 │   ├── config.py
 │   ├── types.py
@@ -474,7 +474,7 @@ query-engine/
 
 **Phase 1 (POC) is complete and successful!**
 
-The Query Engine foundation is:
+The NLQE foundation is:
 - ✅ Fully implemented
 - ✅ Fully typed
 - ✅ Well documented

@@ -1,4 +1,4 @@
-# Example Query Patterns for Query Engine
+# Example Query Patterns for NLQE
 # These are used to provide context to the LLM for SQL generation
 
 version: 1.0

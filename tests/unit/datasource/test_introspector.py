@@ -1,8 +1,8 @@
 import pytest
 
-from query_engine.datasource.introspector import DataSourceIntrospector
-from query_engine.types import DataSourceType
-from query_engine.utils import FileNotFoundError, SchemaError
+from nlqe.datasource.introspector import DataSourceIntrospector
+from nlqe.types import DataSourceType
+from nlqe.utils import FileNotFoundError, SchemaError
 
 
 def test_introspector_file_not_found():

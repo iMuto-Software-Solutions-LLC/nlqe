@@ -30,4 +30,4 @@ ENV PYTHONUNBUFFERED=1
 
 # Command to run the application (assuming main.py is the entry point)
 # Adjust if there's a specific CLI command
-CMD ["uv", "run", "python", "-m", "query_engine.testing.cli", "--help"]
+CMD ["uv", "run", "python", "-m", "nlqe.testing.cli", "--help"]

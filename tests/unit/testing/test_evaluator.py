@@ -2,9 +2,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from query_engine.testing.datasets import GoldenDataset, GoldenTestCase
-from query_engine.testing.evaluator import Evaluator
-from query_engine.testing.metrics import (
+from nlqe.testing.datasets import GoldenDataset, GoldenTestCase
+from nlqe.testing.evaluator import Evaluator
+from nlqe.testing.metrics import (
     AnswerQualityMetric,
     ConfidenceCalibration,
     ResultCorrectnessMetric,
@@ -94,7 +94,7 @@ def test_evaluator_evaluate_all(mock_query_engine, mock_dataset, mock_quality_ev
     # since they are static methods
     with pytest.MonkeyPatch.context() as m:
         m.setattr(
-            "query_engine.testing.evaluator.MetricsCalculator.calculate_result_correctness",
+            "nlqe.testing.evaluator.MetricsCalculator.calculate_result_correctness",
             lambda **kwargs: ResultCorrectnessMetric(
                 score=1.0,
                 is_correct=True,
@@ -107,7 +107,7 @@ def test_evaluator_evaluate_all(mock_query_engine, mock_dataset, mock_quality_ev
             ),
         )
         m.setattr(
-            "query_engine.testing.evaluator.MetricsCalculator.calculate_confidence_calibration",
+            "nlqe.testing.evaluator.MetricsCalculator.calculate_confidence_calibration",
             lambda **kwargs: ConfidenceCalibration(
                 predicted_confidence=0.9,
                 actual_accuracy=0.9,
@@ -140,7 +140,7 @@ def test_evaluate_by_category(mock_query_engine, mock_dataset, mock_quality_eval
 
     with pytest.MonkeyPatch.context() as m:
         m.setattr(
-            "query_engine.testing.evaluator.MetricsCalculator.calculate_result_correctness",
+            "nlqe.testing.evaluator.MetricsCalculator.calculate_result_correctness",
             lambda **kwargs: ResultCorrectnessMetric(
                 score=1.0,
                 is_correct=True,
@@ -153,7 +153,7 @@ def test_evaluate_by_category(mock_query_engine, mock_dataset, mock_quality_eval
             ),
         )
         m.setattr(
-            "query_engine.testing.evaluator.MetricsCalculator.calculate_confidence_calibration",
+            "nlqe.testing.evaluator.MetricsCalculator.calculate_confidence_calibration",
             lambda **kwargs: ConfidenceCalibration(
                 predicted_confidence=0.9,
                 actual_accuracy=0.9,
@@ -179,7 +179,7 @@ def test_evaluate_by_difficulty(mock_query_engine, mock_dataset, mock_quality_ev
 
     with pytest.MonkeyPatch.context() as m:
         m.setattr(
-            "query_engine.testing.evaluator.MetricsCalculator.calculate_result_correctness",
+            "nlqe.testing.evaluator.MetricsCalculator.calculate_result_correctness",
             lambda **kwargs: ResultCorrectnessMetric(
                 score=1.0,
                 is_correct=True,
@@ -192,7 +192,7 @@ def test_evaluate_by_difficulty(mock_query_engine, mock_dataset, mock_quality_ev
             ),
         )
         m.setattr(
-            "query_engine.testing.evaluator.MetricsCalculator.calculate_confidence_calibration",
+            "nlqe.testing.evaluator.MetricsCalculator.calculate_confidence_calibration",
             lambda **kwargs: ConfidenceCalibration(
                 predicted_confidence=0.9,
                 actual_accuracy=0.9,

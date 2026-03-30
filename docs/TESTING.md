@@ -1,4 +1,4 @@
-# Query Engine: Testing & Evaluation Strategy
+# NLQE: Testing & Evaluation Strategy
 
 **Version**: v1.0.0  
 **Last Updated**: March 17, 2026  
@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document defines the comprehensive testing strategy for Query Engine, including unit tests, integration tests, and an evaluation framework for measuring accuracy and confidence. See [DESIGN.md](./DESIGN.md) for context on the overall system.
+This document defines the comprehensive testing strategy for NLQE, including unit tests, integration tests, and an evaluation framework for measuring accuracy and confidence. See [DESIGN.md](./DESIGN.md) for context on the overall system.
 
 ---
 

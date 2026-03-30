@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/query-engine
+      url: https://pypi.org/p/nlqe
     permissions:
       id-token: write  # Necessary for trusted publishing
       contents: read   # Required for actions/checkout

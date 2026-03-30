@@ -1,4 +1,4 @@
-# Query Engine: Public API Reference
+# NLQE: Public API Reference
 
 **Version**: v1.0.0  
 **Last Updated**: March 17, 2026  
@@ -6,14 +6,14 @@
 
 ## Overview
 
-This document describes the public API surface of Query Engine. This is what users will import and interact with. Internal implementation details are in [ARCHITECTURE.md](./ARCHITECTURE.md).
+This document describes the public API surface of NLQE. This is what users will import and interact with. Internal implementation details are in [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ---
 
 ## Quick Start Pattern
 
 ```
-from query_engine import QueryEngine, QueryEngineConfig
+from nlqe import QueryEngine, QueryEngineConfig
 
 # 1. Initialize
 config = QueryEngineConfig.from_env()  # Loads from .env
@@ -60,7 +60,7 @@ Creates a QueryEngine instance with given configuration. Configuration is typica
 
 **Example**:
 ```
-from query_engine import QueryEngineConfig, QueryEngine
+from nlqe import QueryEngineConfig, QueryEngine
 
 config = QueryEngineConfig(
     openai_api_key="sk-...",
@@ -210,50 +210,50 @@ Pydantic model for configuration, loads from environment variables.
 
 - `openai_api_key: str` (required)
   - OpenAI API key for authentication
-  - Load from: `QUERY_ENGINE_OPENAI_API_KEY` env var
+  - Load from: `NLQE_OPENAI_API_KEY` env var
   
 - `openai_model: str = "gpt-4"` (optional)
   - Model to use for SQL generation
-  - Load from: `QUERY_ENGINE_OPENAI_MODEL`
+  - Load from: `NLQE_OPENAI_MODEL`
   
 - `openai_temperature: float = 0.0` (optional)
   - Temperature for SQL generation (deterministic)
-  - Load from: `QUERY_ENGINE_OPENAI_TEMPERATURE`
+  - Load from: `NLQE_OPENAI_TEMPERATURE`
   
 - `openai_max_tokens: int = 2000` (optional)
   - Maximum tokens per OpenAI response
-  - Load from: `QUERY_ENGINE_OPENAI_MAX_TOKENS`
+  - Load from: `NLQE_OPENAI_MAX_TOKENS`
 
 **Query Execution Settings**:
 
 - `query_timeout_seconds: int = 30` (optional)
   - Timeout for DuckDB query execution
-  - Load from: `QUERY_ENGINE_QUERY_TIMEOUT_SECONDS`
+  - Load from: `NLQE_QUERY_TIMEOUT_SECONDS`
   
 - `max_debug_attempts: int = 3` (optional)
   - Maximum retry attempts for failed queries
-  - Load from: `QUERY_ENGINE_MAX_DEBUG_ATTEMPTS`
+  - Load from: `NLQE_MAX_DEBUG_ATTEMPTS`
   - Valid range: 1-10
 
 **Datasource Settings**:
 
 - `datasource_path: Optional[str] = None` (optional at init)
   - Path to datasource (can be set later via load_datasource)
-  - Load from: `QUERY_ENGINE_DATASOURCE_PATH`
+  - Load from: `NLQE_DATASOURCE_PATH`
   
 - `datasource_type: Optional[str] = None` (optional)
   - Type hint for datasource ("parquet", "csv", "duckdb")
-  - Load from: `QUERY_ENGINE_DATASOURCE_TYPE`
+  - Load from: `NLQE_DATASOURCE_TYPE`
 
 **Operational Settings**:
 
 - `log_level: str = "INFO"` (optional)
   - Logging verbosity (DEBUG, INFO, WARNING, ERROR)
-  - Load from: `QUERY_ENGINE_LOG_LEVEL`
+  - Load from: `NLQE_LOG_LEVEL`
   
 - `log_queries: bool = True` (optional)
   - Whether to log generated SQL and execution details
-  - Load from: `QUERY_ENGINE_LOG_QUERIES`
+  - Load from: `NLQE_LOG_QUERIES`
 
 ### Class Methods
 
@@ -278,13 +278,13 @@ config = QueryEngineConfig.from_env()
 
 ```
 # .env
-QUERY_ENGINE_OPENAI_API_KEY=sk-proj-...
-QUERY_ENGINE_OPENAI_MODEL=gpt-4
-QUERY_ENGINE_OPENAI_TEMPERATURE=0.0
-QUERY_ENGINE_QUERY_TIMEOUT_SECONDS=30
-QUERY_ENGINE_MAX_DEBUG_ATTEMPTS=3
-QUERY_ENGINE_LOG_LEVEL=INFO
-QUERY_ENGINE_LOG_QUERIES=true
+NLQE_OPENAI_API_KEY=sk-proj-...
+NLQE_OPENAI_MODEL=gpt-4
+NLQE_OPENAI_TEMPERATURE=0.0
+NLQE_QUERY_TIMEOUT_SECONDS=30
+NLQE_MAX_DEBUG_ATTEMPTS=3
+NLQE_LOG_LEVEL=INFO
+NLQE_LOG_QUERIES=true
 ```
 
 ---
@@ -476,8 +476,8 @@ QueryEngineError (base exception)
 ### Error Handling Examples
 
 ```python
-from query_engine import QueryEngine, QueryEngineConfig
-from query_engine.errors import (
+from nlqe import QueryEngine, QueryEngineConfig
+from nlqe.errors import (
     QueryExecutionError,
     APIError,
     DebugFailedError

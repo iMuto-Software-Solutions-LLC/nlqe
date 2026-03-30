@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from query_engine.testing.metrics import (
+from nlqe.testing.metrics import (
     AnswerQualityEvaluator,
     EvaluationMetrics,
     MetricsCalculator,

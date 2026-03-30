@@ -6,10 +6,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from query_engine.config import QueryEngineConfig
-from query_engine.engine import QueryEngine
-from query_engine.types import ColumnInfo, DataSourceSchema, DataSourceType, TableInfo
-from query_engine.utils import ConfigurationError
+from nlqe.config import QueryEngineConfig
+from nlqe.engine import QueryEngine
+from nlqe.types import ColumnInfo, DataSourceSchema, DataSourceType, TableInfo
+from nlqe.utils import ConfigurationError
 
 
 def _make_schema(name: str = "test_db") -> DataSourceSchema:
@@ -140,7 +140,7 @@ class TestCustomLLMClient:
         engine = QueryEngine(cfg, custom_llm_client=mock_llm_client)
         engine.schema = _make_schema()
         engine.duckdb_executor = mock_executor
-        from query_engine.query.loop import QueryLoop
+        from nlqe.query.loop import QueryLoop
 
         engine.query_loop = QueryLoop(mock_llm_client, mock_executor)
 

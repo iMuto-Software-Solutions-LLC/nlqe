@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 import pytest
 from langchain_core.messages import AIMessage
 
-from query_engine.llm.client import LLMClient, load_few_shot_examples
-from query_engine.utils import APIParsingError
+from nlqe.llm.client import LLMClient, load_few_shot_examples
+from nlqe.utils import APIParsingError
 
 # ---------------------------------------------------------------------------
 # _extract_sql (static helper)

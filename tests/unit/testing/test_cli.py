@@ -3,8 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from query_engine.testing.cli import main
-from query_engine.testing.metrics import EvaluationMetrics
+from nlqe.testing.cli import main
+from nlqe.testing.metrics import EvaluationMetrics
 
 
 @pytest.fixture
@@ -52,13 +52,13 @@ def mock_modules(mock_metrics):
         mock_loader = MagicMock()
         mock_loader.load_from_yaml.return_value = mock_dataset
 
-        m.setattr("query_engine.testing.cli.QueryEngineConfig", mock_config)
-        m.setattr("query_engine.testing.cli.Evaluator", mock_evaluator_cls)
-        m.setattr("query_engine.testing.cli.ReportGenerator.generate_markdown_report", MagicMock())
-        m.setattr("query_engine.testing.cli.ReportGenerator.generate_json_report", MagicMock())
-        m.setattr("query_engine.testing.cli.ReportGenerator.generate_csv_report", MagicMock())
-        m.setattr("query_engine.testing.cli.DatasetLoader", mock_loader)
-        m.setattr("query_engine.testing.cli.QueryEngine", MagicMock())
+        m.setattr("nlqe.testing.cli.QueryEngineConfig", mock_config)
+        m.setattr("nlqe.testing.cli.Evaluator", mock_evaluator_cls)
+        m.setattr("nlqe.testing.cli.ReportGenerator.generate_markdown_report", MagicMock())
+        m.setattr("nlqe.testing.cli.ReportGenerator.generate_json_report", MagicMock())
+        m.setattr("nlqe.testing.cli.ReportGenerator.generate_csv_report", MagicMock())
+        m.setattr("nlqe.testing.cli.DatasetLoader", mock_loader)
+        m.setattr("nlqe.testing.cli.QueryEngine", MagicMock())
 
         yield {"evaluator": mock_evaluator_inst, "config": mock_config}
 

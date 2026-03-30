@@ -1,4 +1,4 @@
-"""Shared pytest fixtures for the query-engine test suite.
+"""Shared pytest fixtures for the nlqe test suite.
 
 All tests run without a real LLM or DuckDB connection by default.
 Fixtures that require external services are marked ``live`` and skipped
@@ -12,15 +12,15 @@ from unittest.mock import MagicMock
 import pytest
 from langchain_core.messages import AIMessage
 
-from query_engine.config import QueryEngineConfig
-from query_engine.llm.client import LLMClient
-from query_engine.testing.datasets import GoldenDataset, GoldenTestCase
-from query_engine.testing.metrics import (
+from nlqe.config import QueryEngineConfig
+from nlqe.llm.client import LLMClient
+from nlqe.testing.datasets import GoldenDataset, GoldenTestCase
+from nlqe.testing.metrics import (
     AnswerQualityMetric,
     EvaluationMetrics,
     ResultCorrectnessMetric,
 )
-from query_engine.types import (
+from nlqe.types import (
     ColumnInfo,
     DataSourceSchema,
     DataSourceType,

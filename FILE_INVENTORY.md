@@ -1,47 +1,47 @@
-# Query Engine - Phase 1 File Inventory
+# NLQE - Phase 1 File Inventory
 
 ## Complete List of Created Files
 
-### Python Package Files (`src/query_engine/`)
+### Python Package Files (`src/nlqe/`)
 
 #### Core Modules
-- `src/query_engine/__init__.py` - Public API exports
-- `src/query_engine/engine.py` - Main QueryEngine class (180 lines)
-- `src/query_engine/config.py` - Pydantic configuration (30 lines)
-- `src/query_engine/types.py` - Type definitions (85 lines)
+- `src/nlqe/__init__.py` - Public API exports
+- `src/nlqe/engine.py` - Main QueryEngine class (180 lines)
+- `src/nlqe/config.py` - Pydantic configuration (30 lines)
+- `src/nlqe/types.py` - Type definitions (85 lines)
 
 #### Datasource Module (`datasource/`)
-- `src/query_engine/datasource/__init__.py`
-- `src/query_engine/datasource/introspector.py` - Schema discovery (185 lines)
-- `src/query_engine/datasource/manager.py` - Datasource lifecycle (60 lines)
+- `src/nlqe/datasource/__init__.py`
+- `src/nlqe/datasource/introspector.py` - Schema discovery (185 lines)
+- `src/nlqe/datasource/manager.py` - Datasource lifecycle (60 lines)
 
 #### OpenAI Module (`openai/`)
-- `src/query_engine/openai/__init__.py`
-- `src/query_engine/openai/client.py` - OpenAI API wrapper (280 lines)
+- `src/nlqe/openai/__init__.py`
+- `src/nlqe/openai/client.py` - OpenAI API wrapper (280 lines)
 
 #### DuckDB Module (`duckdb/`)
-- `src/query_engine/duckdb/__init__.py`
-- `src/query_engine/duckdb/executor.py` - Query executor (180 lines)
+- `src/nlqe/duckdb/__init__.py`
+- `src/nlqe/duckdb/executor.py` - Query executor (180 lines)
 
 #### Query Module (`query/`)
-- `src/query_engine/query/__init__.py`
-- `src/query_engine/query/loop.py` - Query generation & debug (170 lines)
+- `src/nlqe/query/__init__.py`
+- `src/nlqe/query/loop.py` - Query generation & debug (170 lines)
 
 #### Conversation Module (`conversation/`)
-- `src/query_engine/conversation/__init__.py`
-- `src/query_engine/conversation/manager.py` - Multi-turn support (130 lines)
+- `src/nlqe/conversation/__init__.py`
+- `src/nlqe/conversation/manager.py` - Multi-turn support (130 lines)
 
 #### Synthesis Module (`synthesis/`)
-- `src/query_engine/synthesis/__init__.py`
-- `src/query_engine/synthesis/answer.py` - Answer generation (25 lines)
+- `src/nlqe/synthesis/__init__.py`
+- `src/nlqe/synthesis/answer.py` - Answer generation (25 lines)
 
 #### Testing Module (`testing/`)
-- `src/query_engine/testing/__init__.py` - Stub for Phase 2
+- `src/nlqe/testing/__init__.py` - Stub for Phase 2
 
 #### Utilities Module (`utils/`)
-- `src/query_engine/utils/__init__.py`
-- `src/query_engine/utils/errors.py` - Custom exceptions (55 lines)
-- `src/query_engine/utils/logging.py` - Logging config (35 lines)
+- `src/nlqe/utils/__init__.py`
+- `src/nlqe/utils/errors.py` - Custom exceptions (55 lines)
+- `src/nlqe/utils/logging.py` - Logging config (35 lines)
 
 ### Documentation Files
 
@@ -178,7 +178,7 @@ All files organized, fully typed, well-documented, and ready for Phase 2
 Files to create:
 - `tests/` directory with unit and integration tests
 - `tests/fixtures/` directory for test data
-- Update `src/query_engine/testing/` with evaluation framework
+- Update `src/nlqe/testing/` with evaluation framework
 - CI/CD configuration files
 
 Files to modify:
@@ -189,8 +189,8 @@ Files to modify:
 ## Repository Structure
 
 ```
-query-engine/
-├── src/query_engine/          (21 Python files, fully typed)
+nlqe/
+├── src/nlqe/          (21 Python files, fully typed)
 ├── docs/                      (6 design documents)
 ├── fixtures/                  (4 parquet + 1 YAML + 1 README)
 ├── *.ipynb                    (2 notebooks, 44 cells)

@@ -1,4 +1,4 @@
-# Query Engine: FAQ & Design Decisions
+# NLQE: FAQ & Design Decisions
 
 **Version**: v1.0.0  
 **Last Updated**: March 17, 2026  
@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document addresses frequently asked questions about the Query Engine design, documents key decisions and their rationale, and identifies items requiring clarification before final product development.
+This document addresses frequently asked questions about the NLQE design, documents key decisions and their rationale, and identifies items requiring clarification before final product development.
 
 ---
 
@@ -98,7 +98,7 @@ This document addresses frequently asked questions about the Query Engine design
 
 ---
 
-### 5. DuckDB as Query Engine
+### 5. DuckDB as NLQE
 
 **Decision**: Use DuckDB for in-process SQL execution.
 

@@ -1,4 +1,4 @@
-# NLQE (Natural Language Query Engine)
+# NLQE (Natural Language NLQE)
 
 A natural language to SQL query engine powered by [LangChain](https://python.langchain.com/) and DuckDB. Ask questions about your data in plain English — works with OpenAI, Anthropic, or any LangChain-compatible model.
 
@@ -11,9 +11,9 @@ A natural language to SQL query engine powered by [LangChain](https://python.lan
 ### Single query
 
 ```python
-from query_engine import QueryEngine, QueryEngineConfig
+from nlqe import QueryEngine, QueryEngineConfig
 
-# Reads QUERY_ENGINE_OPENAI_API_KEY from environment or .env
+# Reads NLQE_OPENAI_API_KEY from environment or .env
 config = QueryEngineConfig()
 engine = QueryEngine(config)
 engine.load_datasource("transactions.parquet")
@@ -42,8 +42,8 @@ print(r3.answer)
 
 ```python
 from langchain_anthropic import ChatAnthropic
-from query_engine import QueryEngine, QueryEngineConfig
-from query_engine.llm import LLMClient
+from nlqe import QueryEngine, QueryEngineConfig
+from nlqe.llm import LLMClient
 
 # Anthropic
 llm = ChatAnthropic(model="claude-3-5-sonnet-20241022")
@@ -81,9 +81,9 @@ cp .env.example .env
 ```
 
 ```ini
-QUERY_ENGINE_LLM_PROVIDER=openai
-QUERY_ENGINE_OPENAI_API_KEY=sk-...
-QUERY_ENGINE_LLM_MODEL=gpt-4o
+NLQE_LLM_PROVIDER=openai
+NLQE_OPENAI_API_KEY=sk-...
+NLQE_LLM_MODEL=gpt-4o
 ```
 
 ---
@@ -133,7 +133,7 @@ make build      # Build distribution packages
 Evaluate the engine against standardized test cases:
 
 ```bash
-python -m query_engine.testing.cli evaluate --dataset fixtures/golden_datasets.yaml
+python -m nlqe.testing.cli evaluate --dataset fixtures/golden_datasets.yaml
 ```
 
 ---

@@ -1,4 +1,4 @@
-# Example Queries for Query Engine Testing
+# Example Queries for NLQE Testing
 
 This document lists all 25+ example query patterns organized by complexity and SQL feature.
 
@@ -228,7 +228,7 @@ jupyter notebook prototype_advanced.ipynb
 
 ### Option 2: Python API
 ```python
-from query_engine import QueryEngine, QueryEngineConfig
+from nlqe import QueryEngine, QueryEngineConfig
 
 config = QueryEngineConfig.from_env()
 engine = QueryEngine(config)

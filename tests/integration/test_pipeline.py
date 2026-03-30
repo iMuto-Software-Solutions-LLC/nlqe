@@ -16,11 +16,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from query_engine.config import QueryEngineConfig
-from query_engine.engine import QueryEngine
-from query_engine.llm.client import LLMClient
-from query_engine.types import QueryResponse
-from query_engine.utils import DebugFailedError
+from nlqe.config import QueryEngineConfig
+from nlqe.engine import QueryEngine
+from nlqe.llm.client import LLMClient
+from nlqe.types import QueryResponse
+from nlqe.utils import DebugFailedError
 
 FIXTURE_PARQUET = "fixtures/transactions.parquet"
 
@@ -204,7 +204,7 @@ class TestLivePipeline:
     """Full end-to-end tests with a real LLM API call.
 
     Run with:  pytest tests/integration/ -v --live
-    Requires QUERY_ENGINE_OPENAI_API_KEY to be set.
+    Requires NLQE_OPENAI_API_KEY to be set.
     """
 
     @pytest.fixture(autouse=True)

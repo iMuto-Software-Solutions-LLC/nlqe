@@ -1,4 +1,4 @@
-# Query Engine: Implementation Roadmap
+# NLQE: Implementation Roadmap
 
 **Version**: v1.0.0  
 **Last Updated**: March 17, 2026  
@@ -6,7 +6,7 @@
 
 ## Overview
 
-This document outlines the implementation timeline, phases, and success criteria for Query Engine development. Phases are organized sequentially over a 6-week period, with clear deliverables and success metrics.
+This document outlines the implementation timeline, phases, and success criteria for NLQE development. Phases are organized sequentially over a 6-week period, with clear deliverables and success metrics.
 
 ---
 
@@ -142,7 +142,7 @@ Transform prototype into importable Python package with proper structure, testin
 ### Package Structure
 
 ```
-src/query_engine/
+src/nlqe/
 ├── __init__.py (public API)
 ├── config.py (Pydantic models)
 ├── types.py (type definitions)
@@ -161,7 +161,7 @@ src/query_engine/
 #### Week 2: Foundation
 
 - [ ] Set up package structure
-  - [ ] Create `src/query_engine/` directory structure
+  - [ ] Create `src/nlqe/` directory structure
   - [ ] Implement `__init__.py` with public API exports
   - [ ] Create type definitions in `types.py`
   - [ ] Create Pydantic config models
@@ -227,7 +227,7 @@ src/query_engine/
 
 ### Deliverables
 
-1. **Importable package** - `from query_engine import QueryEngine`
+1. **Importable package** - `from nlqe import QueryEngine`
 2. **Unit tests** - 50+ tests covering all components
 3. **Integration tests** - End-to-end flows
 4. **.github/workflows/** - CI/CD pipeline (optional for POC)

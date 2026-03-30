@@ -27,7 +27,7 @@ clean:
 
 # Docker
 docker-build:
-	docker build -t query-engine:latest .
+	docker build -t nlqe:latest .
 
 # Release / Publish
 build: clean
@@ -39,4 +39,4 @@ publish-test: build
 publish: build
 	uv publish
 docker-run:
-	docker run --rm -it --env-file .env query-engine:latest
+	docker run --rm -it --env-file .env nlqe:latest

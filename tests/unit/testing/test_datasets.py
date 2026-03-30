@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from query_engine.testing.datasets import DatasetLoader, GoldenDataset, GoldenTestCase
+from nlqe.testing.datasets import DatasetLoader, GoldenDataset, GoldenTestCase
 
 # ---------------------------------------------------------------------------
 # GoldenTestCase construction

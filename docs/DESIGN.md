@@ -1,4 +1,4 @@
-# Query Engine: Design Document
+# NLQE: Design Document
 
 **Version**: v1.0.0  
 **Last Updated**: March 17, 2026  
@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-This document outlines the design for a **Natural Language to SQL Query Engine** that translates plain English questions into SQL queries executed against DuckDB datasources. The system uses OpenAI to generate and refine SQL queries, with built-in error recovery through an iterative debugging loop.
+This document outlines the design for a **Natural Language to SQL NLQE** that translates plain English questions into SQL queries executed against DuckDB datasources. The system uses OpenAI to generate and refine SQL queries, with built-in error recovery through an iterative debugging loop.
 
 The design accommodates two phases:
 1. **Proof of Concept** (Prototype Phase): Jupyter notebook demonstrating end-to-end flow
@@ -205,8 +205,8 @@ python-dotenv>=1.0.0       # Load .env files
 ### Package Structure
 
 ```
-query-engine/
-├── src/query_engine/
+nlqe/
+├── src/nlqe/
 │   ├── __init__.py                 # Public API exports
 │   ├── config.py                   # Configuration models
 │   ├── types.py                    # Type definitions
@@ -455,7 +455,7 @@ Core settings for QueryEngine operation:
 - `log_level` - Logging verbosity (default: INFO)
 - `log_queries` - Whether to log all queries (default: true)
 
-Load from environment variables with `QUERY_ENGINE_` prefix, or from `.env` file.
+Load from environment variables with `NLQE_` prefix, or from `.env` file.
 
 ---
 

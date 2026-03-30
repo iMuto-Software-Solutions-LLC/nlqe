@@ -1,5 +1,5 @@
 [project]
-name = "query-engine"
+name = "nlqe"
 version = "0.1.0"
 description = "Natural language to SQL query engine powered by LangChain and DuckDB"
 readme = "README.md"
@@ -46,7 +46,7 @@ ignore = ["E501"]  # Line too long (handled by formatter)
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "--cov=src/query_engine --cov-report=term-missing --strict-markers"
+addopts = "--cov=src/nlqe --cov-report=term-missing --strict-markers"
 
 [tool.mypy]
 python_version = "3.11"
