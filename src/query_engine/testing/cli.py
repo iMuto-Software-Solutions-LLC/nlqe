@@ -8,6 +8,7 @@ from query_engine.config import QueryEngineConfig
 from query_engine.engine import QueryEngine
 from query_engine.testing.datasets import DatasetLoader
 from query_engine.testing.evaluator import Evaluator
+from query_engine.testing.metrics import AnswerQualityEvaluator
 from query_engine.testing.reporter import ReportGenerator
 from query_engine.utils import get_logger
 
@@ -163,7 +164,8 @@ def _run_evaluate(args: argparse.Namespace) -> int:
         engine.load_datasource(args.datasource)
 
         # Create evaluator
-        evaluator = Evaluator(engine, filtered_dataset)
+        answer_quality_evaluator = AnswerQualityEvaluator(llm_client=engine.llm_client)
+        evaluator = Evaluator(engine, filtered_dataset, answer_quality_evaluator=answer_quality_evaluator)
 
         # Run evaluation
         logger.info("Starting evaluation...")

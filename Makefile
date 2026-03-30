@@ -29,5 +29,14 @@ clean:
 docker-build:
 	docker build -t query-engine:latest .
 
+# Release / Publish
+build: clean
+	uv build
+
+publish-test: build
+	uv publish --repository-url https://test.pypi.org/legacy/
+
+publish: build
+	uv publish
 docker-run:
 	docker run --rm -it --env-file .env query-engine:latest

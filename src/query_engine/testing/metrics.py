@@ -170,14 +170,19 @@ Respond in this exact JSON format:
         import json
 
         try:
+            import logging
+            logger = logging.getLogger(__name__)
+            # Clean up markdown code blocks if present
+            clean_text = evaluation_text.replace('```json', '').replace('```', '').strip()
+            
             # Extract JSON from response
-            json_start = evaluation_text.find("{")
-            json_end = evaluation_text.rfind("}") + 1
+            json_start = clean_text.find("{")
+            json_end = clean_text.rfind("}") + 1
 
             if json_start == -1 or json_end == 0:
                 raise ValueError("No JSON found in response")
 
-            json_str = evaluation_text[json_start:json_end]
+            json_str = clean_text[json_start:json_end]
             data = json.loads(json_str)
 
             return AnswerQualityMetric(
@@ -189,6 +194,9 @@ Respond in this exact JSON format:
                 evaluator_notes=str(data.get("notes", "")),
             )
         except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Failed to parse LLM evaluation JSON: {e} | TEXT: {evaluation_text}")
             # Return default metric
             return AnswerQualityMetric(
                 score=0.5,
@@ -296,23 +304,31 @@ class MetricsCalculator:
     @staticmethod
     def _rows_equal(actual: dict[str, Any], expected: dict[str, Any], variance: float) -> bool:
         """Check if two rows are equal within tolerance."""
-        if set(actual.keys()) != set(expected.keys()):
+        keys_match = set(actual.keys()) == set(expected.keys())
+        
+        if keys_match:
+            actual_vals = [actual.get(k) for k in expected.keys()]
+            expected_vals = [expected.get(k) for k in expected.keys()]
+        elif len(actual) == len(expected):
+            actual_vals = list(actual.values())
+            expected_vals = list(expected.values())
+        else:
             return False
 
-        for key in expected.keys():
-            actual_val = actual.get(key)
-            expected_val = expected.get(key)
-
+        for actual_val, expected_val in zip(actual_vals, expected_vals):
             # Check None/NULL values
             if actual_val is None or expected_val is None:
                 if actual_val != expected_val:
                     return False
             # Check numeric with variance
             elif isinstance(expected_val, (int, float)) and isinstance(actual_val, (int, float)):
-                if abs(actual_val - expected_val) > expected_val * variance:
+                if expected_val == 0:
+                    if abs(actual_val) > 0.0001:
+                        return False
+                elif abs(actual_val - expected_val) > abs(expected_val) * variance:
                     return False
             # Check exact match for others
-            elif actual_val != expected_val:
+            elif str(actual_val).lower() != str(expected_val).lower():
                 return False
 
         return True

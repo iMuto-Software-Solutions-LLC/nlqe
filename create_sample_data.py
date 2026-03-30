@@ -10,6 +10,9 @@ import pandas as pd
 # Create sample transaction data
 def create_sample_data() -> None:
     """Create sample parquet files for testing."""
+    # Set fixed seed for deterministic data generation
+    random.seed(42)
+
     # Sample regions with more variety
     regions = [
         ("North America", "USA"),
