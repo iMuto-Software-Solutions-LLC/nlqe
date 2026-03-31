@@ -132,7 +132,10 @@ class DataSourceIntrospector:
                 DataSourceType.MYSQL,
                 DataSourceType.MSSQL,
             ):
-                uri = self.path.uri
+                config = self.path
+                if isinstance(config, str):
+                    raise SchemaError(f"Configuration object required for external database type {self.datasource_type}")
+                uri = config.uri
                 if self.datasource_type == DataSourceType.POSTGRES:
                     conn.execute("INSTALL postgres; LOAD postgres;")
                     conn.execute(f"ATTACH '{uri}' AS ext_db (TYPE POSTGRES);")
