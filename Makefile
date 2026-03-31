@@ -44,14 +44,4 @@ docker-run:
 
 # Usage: make bump-version VERSION=0.2.0
 bump-version:
-	@if [ -z "$(VERSION)" ]; then \
-		echo "Error: VERSION is required. Usage: make bump-version VERSION=x.y.z"; \
-		exit 1; \
-	fi
-	sed -i 's/^version = ".*"/version = "$(VERSION)"/' pyproject.toml
-	sed -i 's/^__version__ = ".*"/__version__ = "$(VERSION)"/' src/nlqe/__init__.py
-	git add pyproject.toml src/nlqe/__init__.py
-	git commit -m "chore: bump version to v$(VERSION)"
-	git tag -a "v$(VERSION)" -m "Release v$(VERSION)"
-	@echo "Version bumped to $(VERSION) and tagged as v$(VERSION)."
-	@echo "Run 'git push origin main --tags' to publish."
+	@python scripts/bump_version.py "$(VERSION)"
