@@ -171,10 +171,11 @@ Respond in this exact JSON format:
 
         try:
             import logging
+
             logger = logging.getLogger(__name__)
             # Clean up markdown code blocks if present
-            clean_text = evaluation_text.replace('```json', '').replace('```', '').strip()
-            
+            clean_text = evaluation_text.replace("```json", "").replace("```", "").strip()
+
             # Extract JSON from response
             json_start = clean_text.find("{")
             json_end = clean_text.rfind("}") + 1
@@ -195,6 +196,7 @@ Respond in this exact JSON format:
             )
         except Exception as e:
             import logging
+
             logger = logging.getLogger(__name__)
             logger.error(f"Failed to parse LLM evaluation JSON: {e} | TEXT: {evaluation_text}")
             # Return default metric
@@ -305,7 +307,7 @@ class MetricsCalculator:
     def _rows_equal(actual: dict[str, Any], expected: dict[str, Any], variance: float) -> bool:
         """Check if two rows are equal within tolerance."""
         keys_match = set(actual.keys()) == set(expected.keys())
-        
+
         if keys_match:
             actual_vals = [actual.get(k) for k in expected.keys()]
             expected_vals = [expected.get(k) for k in expected.keys()]
