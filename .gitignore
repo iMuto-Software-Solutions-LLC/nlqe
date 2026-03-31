@@ -12,3 +12,5 @@ wheels/
 .jbeval
 .env
 /reports/evaluation_report.csv
+/coverage.xml
+/.coverage
