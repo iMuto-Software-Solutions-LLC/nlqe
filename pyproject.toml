@@ -1,6 +1,6 @@
 [project]
 name = "pynlqe"
-version = "0.1.2"
+version = "0.1.5"
 description = "Natural language to SQL query engine powered by LangChain and DuckDB"
 readme = "README.md"
 requires-python = ">=3.11"

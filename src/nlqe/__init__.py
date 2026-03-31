@@ -43,7 +43,7 @@ from nlqe.utils import (
     setup_logging,
 )
 
-__version__ = "0.1.2"
+__version__ = "0.1.5"
 
 __all__ = [
     "APIAuthenticationError",
