@@ -22,7 +22,7 @@ test-cov:
 
 # Cleanup
 clean:
-	rm -rf .pytest_cache .ruff_cache .coverage .mypy_cache
+	rm -rf .pytest_cache .ruff_cache .coverage .mypy_cache dist
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 
 # Docker
