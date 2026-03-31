@@ -1,13 +1,13 @@
 # Changelog
 
-All notable changes to the Natural Language NLQE (NLQE) will be documented in this file.
+All notable changes to the Natural Language Query Engine (NLQE) will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.1.0] - 2026-03-30
 
-This is the initial open-source release of the **Natural Language NLQE (NLQE)**. 
+This is the initial open-source release of the **Natural Language Query Engine (NLQE)**. 
 
 NLQE is a modular library designed to bridge the gap between human language and structured data. It leverages Large Language Models (LLMs) to automatically generate, validate, and execute SQL queries over in-process datasources.
 

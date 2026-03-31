@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/nlqe
+      url: https://pypi.org/p/pynlqe
     permissions:
       id-token: write  # Necessary for trusted publishing
       contents: read   # Required for actions/checkout

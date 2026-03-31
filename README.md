@@ -60,10 +60,10 @@ engine = QueryEngine(QueryEngineConfig(), custom_llm_client=LLMClient(ChatOllama
 
 ```bash
 # Install core package
-pip install .
+pip install pynlqe
 
 # Install with development tools
-pip install ".[dev]"
+pip install "pynlqe[dev]"
 ```
 
 Generate the sample dataset for testing:

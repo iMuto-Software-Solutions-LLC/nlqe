@@ -1,5 +1,5 @@
 [project]
-name = "nlqe"
+name = "pynlqe"
 version = "0.1.0"
 description = "Natural language to SQL query engine powered by LangChain and DuckDB"
 readme = "README.md"
