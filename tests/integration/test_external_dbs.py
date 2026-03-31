@@ -1,18 +1,21 @@
 """Integration tests for external databases (PostgreSQL, MySQL)."""
 
 import os
-import pytest
+
 import duckdb
+import pytest
 
 from nlqe.config import QueryEngineConfig
 from nlqe.engine import QueryEngine
-from nlqe.types import PostgresConfig, MySQLConfig
+from nlqe.types import MySQLConfig, PostgresConfig
 
 
 @pytest.fixture(scope="session")
 def postgres_uri():
     """Default URI for the docker-compose postgres test DB."""
-    return os.getenv("NLQE_POSTGRES_URI", "postgresql://test_user:test_password@localhost:5432/test_db")
+    return os.getenv(
+        "NLQE_POSTGRES_URI", "postgresql://test_user:test_password@localhost:5432/test_db"
+    )
 
 
 @pytest.fixture(scope="session")
@@ -38,7 +41,7 @@ def mysql_config(mysql_uri):
 def check_postgres_available(uri: str) -> bool:
     """Helper to check if Postgres is running and reachable by DuckDB."""
     try:
-        conn = duckdb.connect(':memory:')
+        conn = duckdb.connect(":memory:")
         conn.execute("INSTALL postgres; LOAD postgres;")
         conn.execute(f"ATTACH '{uri}' AS pg (TYPE POSTGRES);")
         return True
@@ -49,7 +52,7 @@ def check_postgres_available(uri: str) -> bool:
 def check_mysql_available(uri: str) -> bool:
     """Helper to check if MySQL is running and reachable by DuckDB."""
     try:
-        conn = duckdb.connect(':memory:')
+        conn = duckdb.connect(":memory:")
         conn.execute("INSTALL mysql; LOAD mysql;")
         conn.execute(f"ATTACH '{uri}' AS mysql (TYPE MYSQL);")
         return True
@@ -66,7 +69,7 @@ def test_postgres_introspection_and_query(pg_config, postgres_uri):
     schema = engine.load_datasource(pg_config)
 
     assert schema.datasource_type == "postgres"
-    
+
     table_names = [t.name for t in schema.tables]
     assert "users" in table_names
     assert "orders" in table_names
@@ -88,7 +91,7 @@ def test_mysql_introspection_and_query(mysql_config, mysql_uri):
     schema = engine.load_datasource(mysql_config)
 
     assert schema.datasource_type == "mysql"
-    
+
     table_names = [t.name for t in schema.tables]
     assert "users" in table_names
     assert "orders" in table_names
