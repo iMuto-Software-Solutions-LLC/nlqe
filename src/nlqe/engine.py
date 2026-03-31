@@ -11,7 +11,7 @@ from nlqe.llm.client import (
     openai_client,
 )
 from nlqe.query.loop import QueryLoop
-from nlqe.types import DataSourceSchema, QueryResponse
+from nlqe.types import DatabaseConfig, DataSourceSchema, QueryResponse
 from nlqe.utils import ConfigurationError, get_logger, setup_logging
 
 logger = get_logger(__name__)
@@ -73,10 +73,11 @@ class QueryEngine:
 
     def load_datasource(
         self,
-        path: str,
+        path: str | DatabaseConfig,
         name: str | None = None,
         description: str | None = None,
         datasource_type: str | None = None,
+        allowlist: list[str] | None = None,
     ) -> DataSourceSchema:
         """Load a datasource and initialise the query pipeline.
 
@@ -102,6 +103,7 @@ class QueryEngine:
             name=name,
             description=description,
             datasource_type=datasource_type,
+            allowlist=allowlist,
         )
 
         # Build (or reuse) LLM client

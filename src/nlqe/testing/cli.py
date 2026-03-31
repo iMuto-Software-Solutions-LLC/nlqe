@@ -165,7 +165,9 @@ def _run_evaluate(args: argparse.Namespace) -> int:
 
         # Create evaluator
         answer_quality_evaluator = AnswerQualityEvaluator(llm_client=engine.llm_client)
-        evaluator = Evaluator(engine, filtered_dataset, answer_quality_evaluator=answer_quality_evaluator)
+        evaluator = Evaluator(
+            engine, filtered_dataset, answer_quality_evaluator=answer_quality_evaluator
+        )
 
         # Run evaluation
         logger.info("Starting evaluation...")

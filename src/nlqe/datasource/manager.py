@@ -1,7 +1,7 @@
 """Datasource management."""
 
 from nlqe.datasource.introspector import DataSourceIntrospector
-from nlqe.types import DataSourceSchema
+from nlqe.types import DatabaseConfig, DataSourceSchema
 from nlqe.utils import get_logger
 
 logger = get_logger(__name__)
@@ -14,14 +14,15 @@ class DataSourceManager:
         """Initialize datasource manager."""
         self._introspector: DataSourceIntrospector | None = None
         self._schema: DataSourceSchema | None = None
-        self._path: str | None = None
+        self._path: str | DatabaseConfig | None = None
 
     def load_datasource(
         self,
-        path: str,
+        path: str | DatabaseConfig,
         name: str | None = None,
         description: str | None = None,
         datasource_type: str | None = None,
+        allowlist: list[str] | None = None,
     ) -> DataSourceSchema:
         """Load a datasource.
 
@@ -45,7 +46,7 @@ class DataSourceManager:
             self._introspector.close()
 
         # Create new introspector
-        self._introspector = DataSourceIntrospector(path, datasource_type)
+        self._introspector = DataSourceIntrospector(path, datasource_type, allowlist)
         self._path = path
 
         # Introspect schema
@@ -62,7 +63,7 @@ class DataSourceManager:
         """
         return self._schema
 
-    def get_path(self) -> str | None:
+    def get_path(self) -> str | DatabaseConfig | None:
         """Get current datasource path.
 
         Returns:

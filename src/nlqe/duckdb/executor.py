@@ -6,7 +6,7 @@ from typing import Any
 
 import duckdb
 
-from nlqe.types import SQLValidationResult
+from nlqe.types import DatabaseConfig, MSSQLConfig, MySQLConfig, PostgresConfig, SQLValidationResult
 from nlqe.utils import (
     QueryTimeoutError,
     SQLSafetyError,
@@ -32,11 +32,11 @@ DANGEROUS_PATTERNS = [
 class DuckDBExecutor:
     """Execute SQL queries safely in DuckDB."""
 
-    def __init__(self, datasource_path: str) -> None:
+    def __init__(self, datasource_path: str | DatabaseConfig) -> None:
         """Initialize executor.
 
         Args:
-            datasource_path: Path to datasource file
+            datasource_path: Path to datasource file or external database configuration
         """
         self.datasource_path = datasource_path
         self._connection: Any | None = None
@@ -51,7 +51,11 @@ class DuckDBExecutor:
         if self._connection is None:
             import os
 
-            if os.path.isfile(self.datasource_path) and self.datasource_path.endswith(".duckdb"):
+            if (
+                isinstance(self.datasource_path, str)
+                and os.path.isfile(self.datasource_path)
+                and self.datasource_path.endswith(".duckdb")
+            ):
                 self._connection = duckdb.connect(self.datasource_path)
             else:
                 self._connection = duckdb.connect(":memory:")
@@ -65,6 +69,47 @@ class DuckDBExecutor:
             raise RuntimeError("Connection not initialized")
 
         import os
+
+        # Handle external databases
+        if isinstance(self.datasource_path, PostgresConfig):
+            uri = self.datasource_path.uri
+            if not uri:
+                raise ValueError(
+                    "PostgreSQL URI is not set in configuration or environment (NLQE_POSTGRES_URI)"
+                )
+            logger.info("Attaching PostgreSQL database via DuckDB extension")
+            conn.execute("INSTALL postgres; LOAD postgres;")
+            conn.execute(f"ATTACH '{uri}' AS pg (TYPE POSTGRES);")
+            self._table_name = "pg"
+            return
+
+        if isinstance(self.datasource_path, MySQLConfig):
+            uri = self.datasource_path.uri
+            if not uri:
+                raise ValueError(
+                    "MySQL URI is not set in configuration or environment (NLQE_MYSQL_URI)"
+                )
+            logger.info("Attaching MySQL database via DuckDB extension")
+            conn.execute("INSTALL mysql; LOAD mysql;")
+            conn.execute(f"ATTACH '{uri}' AS mysql (TYPE MYSQL);")
+            self._table_name = "mysql"
+            return
+
+        if isinstance(self.datasource_path, MSSQLConfig):
+            uri = self.datasource_path.uri
+            if not uri:
+                raise ValueError(
+                    "MSSQL URI is not set in configuration or environment (NLQE_MSSQL_URI)"
+                )
+            logger.info("Attaching MSSQL database via ODBC extension")
+            # Note: The ODBC driver for SQL Server must be installed on the host system.
+            conn.execute("INSTALL odbc; LOAD odbc;")
+            conn.execute(f"ATTACH '{uri}' AS mssql (TYPE ODBC);")
+            self._table_name = "mssql"
+            return
+
+        if not isinstance(self.datasource_path, str):
+            raise TypeError(f"Unsupported datasource config type: {type(self.datasource_path)}")
 
         if os.path.isdir(self.datasource_path):
             for file in os.listdir(self.datasource_path):

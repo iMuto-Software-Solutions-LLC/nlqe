@@ -1,9 +1,37 @@
 """Core type definitions and enums for NLQE."""
 
+import os
 from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
+
+
+class PostgresConfig(BaseModel):
+    """PostgreSQL connection configuration."""
+
+    uri: str = Field(
+        default_factory=lambda: os.getenv("NLQE_POSTGRES_URI", ""), exclude=True, repr=False
+    )
+
+
+class MySQLConfig(BaseModel):
+    """MySQL connection configuration."""
+
+    uri: str = Field(
+        default_factory=lambda: os.getenv("NLQE_MYSQL_URI", ""), exclude=True, repr=False
+    )
+
+
+class MSSQLConfig(BaseModel):
+    """MSSQL connection configuration."""
+
+    uri: str = Field(
+        default_factory=lambda: os.getenv("NLQE_MSSQL_URI", ""), exclude=True, repr=False
+    )
+
+
+DatabaseConfig = PostgresConfig | MySQLConfig | MSSQLConfig
 
 
 class DataSourceType(StrEnum):
@@ -13,6 +41,9 @@ class DataSourceType(StrEnum):
     CSV = "csv"
     DUCKDB = "duckdb"
     DIRECTORY = "directory"
+    POSTGRES = "postgres"
+    MYSQL = "mysql"
+    MSSQL = "mssql"
 
 
 class TableInfo(BaseModel):

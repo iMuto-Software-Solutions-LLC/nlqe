@@ -26,6 +26,25 @@ print(f"SQL: {response.generated_sql}")
 print(f"Rows: {len(response.data)}  Confidence: {response.confidence_score:.0%}")
 ```
 
+### Querying External Databases (PostgreSQL, MySQL, MSSQL)
+
+```python
+from nlqe import QueryEngine, QueryEngineConfig
+from nlqe.types import PostgresConfig
+
+# Reads NLQE_POSTGRES_URI from environment
+db_config = PostgresConfig() 
+
+engine = QueryEngine(QueryEngineConfig())
+
+# Introspect only the specified tables to save LLM context
+engine.load_datasource(db_config, allowlist=["users", "orders"])
+
+response = engine.query("How many active users placed an order last week?")
+print(response.generated_sql)
+# SELECT COUNT(DISTINCT u.id) FROM ext_db.users u JOIN ext_db.orders o ON ...
+```
+
 ### Multi-turn conversation
 
 ```python
