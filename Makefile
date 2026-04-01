@@ -44,4 +44,4 @@ docker-run:
 
 # Usage: make bump-version VERSION=0.2.0
 bump-version:
-	@python scripts/bump_version.py "$(VERSION)"
+	@python scripts/bump_version.py "$(VERSION)" && git push origin main --tags
