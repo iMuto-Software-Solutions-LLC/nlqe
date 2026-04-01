@@ -56,11 +56,12 @@ def check_minio_available(config) -> bool:
 def check_azurite_available(config) -> bool:
     """Check if Azurite service is reachable."""
     import socket
+
     try:
         # Just check if port 10000 is open
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(2)
-        s.connect(('127.0.0.1', 10000))
+        s.connect(("127.0.0.1", 10000))
         s.close()
         return True
     except Exception:
@@ -128,10 +129,11 @@ def test_azure_introspection_and_query(azure_config):
     conn.execute(
         f"CREATE SECRET IF NOT EXISTS az_secret (TYPE AZURE, CONNECTION_STRING '{azure_config['connection_string']}');"
     )
-    
+
     import time
+
     time.sleep(2)  # Small settle time
-    
+
     conn.execute(
         f"COPY (SELECT * FROM '{local_parquet}') TO 'azure://test-container/transactions.parquet'"
     )
