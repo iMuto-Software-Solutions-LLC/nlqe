@@ -116,14 +116,18 @@ class DuckDBExecutor:
         if is_remote_path(self.datasource_path):
             logger.info(f"Loading remote datasource: {self.datasource_path}")
             conn.execute("INSTALL httpfs; LOAD httpfs;")
-            
+
             # Basic cloud configuration from environment
-            if "s3://" in self.datasource_path.lower():
+            if (
+                "s3://" in self.datasource_path.lower()
+                or "http://" in self.datasource_path.lower()
+                or "https://" in self.datasource_path.lower()
+            ):
                 s3_key = os.getenv("AWS_ACCESS_KEY_ID")
                 s3_secret = os.getenv("AWS_SECRET_ACCESS_KEY")
                 s3_region = os.getenv("AWS_REGION")
                 s3_endpoint = os.getenv("AWS_ENDPOINT_URL_S3") or os.getenv("AWS_S3_ENDPOINT")
-                
+
                 if s3_key:
                     conn.execute(f"SET s3_access_key_id='{s3_key}'")
                 if s3_secret:
@@ -131,12 +135,33 @@ class DuckDBExecutor:
                 if s3_region:
                     conn.execute(f"SET s3_region='{s3_region}'")
                 if s3_endpoint:
-                    conn.execute(f"SET s3_endpoint='{s3_endpoint.replace('http://', '').replace('https://', '')}'")
+                    conn.execute(
+                        f"SET s3_endpoint='{s3_endpoint.replace('http://', '').replace('https://', '')}'"
+                    )
                     if "http://" in s3_endpoint.lower():
                         conn.execute("SET s3_use_ssl=false")
-            
-            self._table_name = os.path.splitext(os.path.basename(self.datasource_path.split('?')[0]))[0]
-            conn.execute(f"CREATE TABLE {self._table_name} AS SELECT * FROM '{self.datasource_path}'")
+                    if "localhost" in s3_endpoint or "127.0.0.1" in s3_endpoint:
+                        conn.execute("SET s3_url_style='path'")
+
+            elif (
+                "azure://" in self.datasource_path.lower()
+                or "az://" in self.datasource_path.lower()
+            ):
+                conn.execute("INSTALL azure; LOAD azure;")
+                az_conn = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+                if az_conn:
+                    # Escape single quotes in the connection string
+                    az_conn = az_conn.replace("'", "''")
+                    conn.execute(
+                        f"CREATE SECRET IF NOT EXISTS az_secret (TYPE AZURE, CONNECTION_STRING '{az_conn}');"
+                    )
+
+            self._table_name = os.path.splitext(
+                os.path.basename(self.datasource_path.split("?")[0])
+            )[0]
+            conn.execute(
+                f"CREATE TABLE {self._table_name} AS SELECT * FROM '{self.datasource_path}'"
+            )
             logger.info(f"Loaded remote datasource into table {self._table_name}")
             return
 

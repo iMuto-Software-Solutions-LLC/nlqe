@@ -134,7 +134,9 @@ class DataSourceIntrospector:
             ):
                 config = self.path
                 if isinstance(config, str):
-                    raise SchemaError(f"Configuration object required for external database type {self.datasource_type}")
+                    raise SchemaError(
+                        f"Configuration object required for external database type {self.datasource_type}"
+                    )
                 uri = config.uri
                 if self.datasource_type == DataSourceType.POSTGRES:
                     conn.execute("INSTALL postgres; LOAD postgres;")
@@ -159,23 +161,49 @@ class DataSourceIntrospector:
                 if is_remote_path(self.path):
                     logger.info(f"Introspecting remote datasource: {self.path}")
                     conn.execute("INSTALL httpfs; LOAD httpfs;")
-                    
-                    # S3 specific config if applicable
-                    if "s3://" in self.path.lower():
+
+                    # Basic cloud configuration from environment
+                    if (
+                        "s3://" in self.path.lower()
+                        or "http://" in self.path.lower()
+                        or "https://" in self.path.lower()
+                    ):
                         s3_key = os.getenv("AWS_ACCESS_KEY_ID")
                         s3_secret = os.getenv("AWS_SECRET_ACCESS_KEY")
-                        s3_endpoint = os.getenv("AWS_ENDPOINT_URL_S3") or os.getenv("AWS_S3_ENDPOINT")
+                        s3_region = os.getenv("AWS_REGION")
+                        s3_endpoint = os.getenv("AWS_ENDPOINT_URL_S3") or os.getenv(
+                            "AWS_S3_ENDPOINT"
+                        )
+
                         if s3_key:
                             conn.execute(f"SET s3_access_key_id='{s3_key}'")
                         if s3_secret:
                             conn.execute(f"SET s3_secret_access_key='{s3_secret}'")
+                        if s3_region:
+                            conn.execute(f"SET s3_region='{s3_region}'")
                         if s3_endpoint:
-                            conn.execute(f"SET s3_endpoint='{s3_endpoint.replace('http://', '').replace('https://', '')}'")
+                            conn.execute(
+                                f"SET s3_endpoint='{s3_endpoint.replace('http://', '').replace('https://', '')}'"
+                            )
                             if "http://" in s3_endpoint.lower():
                                 conn.execute("SET s3_use_ssl=false")
+                            if "localhost" in s3_endpoint or "127.0.0.1" in s3_endpoint:
+                                conn.execute("SET s3_url_style='path'")
 
-                    table_name = os.path.splitext(os.path.basename(self.path.split('?')[0]))[0]
-                    conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{self.path}'")
+                    elif "azure://" in self.path.lower() or "az://" in self.path.lower():
+                        conn.execute("INSTALL azure; LOAD azure;")
+                        az_conn = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
+                        if az_conn:
+                            # Escape single quotes in the connection string
+                            az_conn = az_conn.replace("'", "''")
+                            conn.execute(
+                                f"CREATE SECRET IF NOT EXISTS az_secret (TYPE AZURE, CONNECTION_STRING '{az_conn}');"
+                            )
+
+                    table_name = os.path.splitext(os.path.basename(self.path.split("?")[0]))[0]
+                    conn.execute(
+                        f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{self.path}'"
+                    )
                     tables = [table_name]
                 else:
                     safe_path = self.path.replace("\\", "/")

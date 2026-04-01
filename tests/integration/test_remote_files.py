@@ -1,8 +1,9 @@
-"""Integration tests for remote file systems (S3/HTTP)."""
+"""Integration tests for remote file systems (S3/HTTP/Azure)."""
 
 import os
-import pytest
+
 import duckdb
+import pytest
 
 from nlqe.config import QueryEngineConfig
 from nlqe.engine import QueryEngine
@@ -23,20 +24,49 @@ def s3_config():
     }
 
 
+@pytest.fixture(scope="session")
+def azure_config():
+    """Environment variables for Azurite."""
+    # Standard Azurite development connection string
+    conn_str = "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;"
+    os.environ["AZURE_STORAGE_CONNECTION_STRING"] = conn_str
+    return {"connection_string": conn_str}
+
+
 def check_minio_available(config) -> bool:
     """Check if MinIO is running and reachable."""
     try:
-        conn = duckdb.connect(':memory:')
+        conn = duckdb.connect(":memory:")
         conn.execute("INSTALL httpfs; LOAD httpfs;")
         conn.execute(f"SET s3_access_key_id='{config['key']}'")
         conn.execute(f"SET s3_secret_access_key='{config['secret']}'")
         conn.execute(f"SET s3_endpoint='{config['endpoint']}'")
         conn.execute("SET s3_use_ssl=false")
+        conn.execute("SET s3_url_style='path'")  # Required for MinIO
+
         # Try to list or create a test table
         conn.execute("CREATE TABLE t1 AS SELECT 1 as id")
         conn.execute("COPY t1 TO 's3://test-bucket/ping.parquet'")
         return True
-    except Exception:
+    except Exception as e:
+        print(f"MinIO check failed: {e}")
+        return False
+
+
+def check_azurite_available(config) -> bool:
+    """Check if Azurite is running and reachable."""
+    try:
+        conn = duckdb.connect(":memory:")
+        conn.execute("INSTALL azure; LOAD azure;")
+        conn.execute(
+            f"CREATE SECRET IF NOT EXISTS az_secret (TYPE AZURE, CONNECTION_STRING '{config['connection_string']}');"
+        )
+        # Try to create a container and upload a file
+        conn.execute("CREATE TABLE t2 AS SELECT 1 as id")
+        conn.execute("COPY t2 TO 'azure://devstoreaccount1/test-container/ping.parquet'")
+        return True
+    except Exception as e:
+        print(f"Azurite check failed: {e}")
         return False
 
 
@@ -57,18 +87,20 @@ def test_s3_introspection_and_query(s3_config):
     if not check_minio_available(s3_config):
         pytest.skip("MinIO test server is not available on localhost:9000")
 
-    # Upload sample data to MinIO via DuckDB first
     local_parquet = "fixtures/transactions.parquet"
     if not os.path.exists(local_parquet):
         pytest.skip(f"Required test fixture {local_parquet} not found")
 
-    conn = duckdb.connect(':memory:')
+    conn = duckdb.connect(":memory:")
     conn.execute("INSTALL httpfs; LOAD httpfs;")
     conn.execute(f"SET s3_access_key_id='{s3_config['key']}'")
     conn.execute(f"SET s3_secret_access_key='{s3_config['secret']}'")
     conn.execute(f"SET s3_endpoint='{s3_config['endpoint']}'")
     conn.execute("SET s3_use_ssl=false")
-    conn.execute(f"COPY (SELECT * FROM '{local_parquet}') TO 's3://test-bucket/transactions.parquet'")
+    conn.execute("SET s3_url_style='path'")
+    conn.execute(
+        f"COPY (SELECT * FROM '{local_parquet}') TO 's3://test-bucket/transactions.parquet'"
+    )
 
     # Now test NLQE
     engine = QueryEngine(QueryEngineConfig())
@@ -78,7 +110,40 @@ def test_s3_introspection_and_query(s3_config):
     assert schema.datasource_type == "parquet"
     assert len(schema.tables) == 1
     assert schema.tables[0].name == "transactions"
-    
+
+    # Verify we can execute a query
+    response = engine.query("How many transactions are there?")
+    assert response.result_rows > 0
+    assert response.data is not None
+
+
+def test_azure_introspection_and_query(azure_config):
+    """Test full pipeline against Azurite (Azure Blob Storage)."""
+    if not check_azurite_available(azure_config):
+        pytest.skip("Azurite test server is not available on localhost:10000")
+
+    local_parquet = "fixtures/transactions.parquet"
+    if not os.path.exists(local_parquet):
+        pytest.skip(f"Required test fixture {local_parquet} not found")
+
+    conn = duckdb.connect(":memory:")
+    conn.execute("INSTALL azure; LOAD azure;")
+    conn.execute(
+        f"CREATE SECRET IF NOT EXISTS az_secret (TYPE AZURE, CONNECTION_STRING '{azure_config['connection_string']}');"
+    )
+    conn.execute(
+        f"COPY (SELECT * FROM '{local_parquet}') TO 'azure://devstoreaccount1/test-container/transactions.parquet'"
+    )
+
+    # Now test NLQE
+    engine = QueryEngine(QueryEngineConfig())
+    azure_path = "azure://devstoreaccount1/test-container/transactions.parquet"
+    schema = engine.load_datasource(azure_path)
+
+    assert schema.datasource_type == "parquet"
+    assert len(schema.tables) == 1
+    assert schema.tables[0].name == "transactions"
+
     # Verify we can execute a query
     response = engine.query("How many transactions are there?")
     assert response.result_rows > 0
@@ -86,17 +151,12 @@ def test_s3_introspection_and_query(s3_config):
 
 
 def test_http_introspection_and_query():
-    """Test pipeline against HTTP URL.
-    
-    Note: We'll use a local mock or a very stable public URL.
-    For this test, we skip if no network or specific URL fails.
-    """
-    # Using a small, stable parquet file from DuckDB's own test data if possible
-    # or just a known public one.
+    """Test pipeline against HTTP URL."""
     url = "https://raw.githubusercontent.com/duckdb/duckdb/master/data/parquet-testing/amendments.parquet"
-    
+
     try:
         import requests
+
         r = requests.head(url, timeout=5)
         if r.status_code != 200:
             pytest.skip("Public test URL not reachable")

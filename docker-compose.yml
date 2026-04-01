@@ -61,3 +61,9 @@ services:
       /usr/bin/mc policy set public myminio/test-bucket;
       exit 0;
       "
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+
