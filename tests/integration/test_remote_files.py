@@ -54,19 +54,16 @@ def check_minio_available(config) -> bool:
 
 
 def check_azurite_available(config) -> bool:
-    """Check if Azurite is running and reachable."""
+    """Check if Azurite service is reachable."""
+    import socket
     try:
-        conn = duckdb.connect(":memory:")
-        conn.execute("INSTALL azure; LOAD azure;")
-        conn.execute(
-            f"CREATE SECRET IF NOT EXISTS az_secret (TYPE AZURE, CONNECTION_STRING '{config['connection_string']}');"
-        )
-        # Try to create a container and upload a file
-        conn.execute("CREATE TABLE t2 AS SELECT 1 as id")
-        conn.execute("COPY t2 TO 'azure://devstoreaccount1/test-container/ping.parquet'")
+        # Just check if port 10000 is open
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(2)
+        s.connect(('127.0.0.1', 10000))
+        s.close()
         return True
-    except Exception as e:
-        print(f"Azurite check failed: {e}")
+    except Exception:
         return False
 
 
@@ -131,13 +128,17 @@ def test_azure_introspection_and_query(azure_config):
     conn.execute(
         f"CREATE SECRET IF NOT EXISTS az_secret (TYPE AZURE, CONNECTION_STRING '{azure_config['connection_string']}');"
     )
+    
+    import time
+    time.sleep(2)  # Small settle time
+    
     conn.execute(
-        f"COPY (SELECT * FROM '{local_parquet}') TO 'azure://devstoreaccount1/test-container/transactions.parquet'"
+        f"COPY (SELECT * FROM '{local_parquet}') TO 'azure://test-container/transactions.parquet'"
     )
 
     # Now test NLQE
     engine = QueryEngine(QueryEngineConfig())
-    azure_path = "azure://devstoreaccount1/test-container/transactions.parquet"
+    azure_path = "azure://test-container/transactions.parquet"
     schema = engine.load_datasource(azure_path)
 
     assert schema.datasource_type == "parquet"
