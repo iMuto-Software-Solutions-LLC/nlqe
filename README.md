@@ -45,6 +45,29 @@ print(response.generated_sql)
 # SELECT COUNT(DISTINCT u.id) FROM ext_db.users u JOIN ext_db.orders o ON ...
 ```
 
+### Querying Remote Files (S3, HTTP, Azure)
+
+```python
+from nlqe import QueryEngine, QueryEngineConfig
+
+# Configure S3 credentials (if using S3)
+import os
+os.environ["AWS_ACCESS_KEY_ID"] = "your_key"
+os.environ["AWS_SECRET_ACCESS_KEY"] = "your_secret"
+os.environ["AWS_REGION"] = "us-east-1"
+
+engine = QueryEngine(QueryEngineConfig())
+
+# Query directly from an S3 bucket
+engine.load_datasource("s3://my-bucket/data/sales.parquet")
+
+# Or from a public URL
+# engine.load_datasource("https://example.com/data.csv")
+
+response = engine.query("What are the total sales by category?")
+print(response.answer)
+```
+
 ### Multi-turn conversation
 
 ```python

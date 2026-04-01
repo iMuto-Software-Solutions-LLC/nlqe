@@ -15,7 +15,7 @@ from nlqe.types import (
     PostgresConfig,
     TableInfo,
 )
-from nlqe.utils import FileNotFoundError, SchemaError, get_logger
+from nlqe.utils import FileNotFoundError, SchemaError, get_logger, is_remote_path
 
 logger = get_logger(__name__)
 
@@ -40,7 +40,7 @@ class DataSourceIntrospector:
             FileNotFoundError: If file doesn't exist
             SchemaError: If format is invalid
         """
-        if isinstance(path, str) and not os.path.exists(path):
+        if isinstance(path, str) and not is_remote_path(path) and not os.path.exists(path):
             raise FileNotFoundError(f"Datasource file not found: {path}")
 
         self.path = path
@@ -156,37 +156,59 @@ class DataSourceIntrospector:
                     tables = [t for t in tables if t in self.allowlist]
 
             elif isinstance(self.path, str):
-                safe_path = self.path.replace("\\", "/")
-                if self.datasource_type == DataSourceType.PARQUET:
-                    table_name = os.path.splitext(os.path.basename(self.path))[0]
-                    conn.execute(
-                        f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{safe_path}'"
-                    )
+                if is_remote_path(self.path):
+                    logger.info(f"Introspecting remote datasource: {self.path}")
+                    conn.execute("INSTALL httpfs; LOAD httpfs;")
+                    
+                    # S3 specific config if applicable
+                    if "s3://" in self.path.lower():
+                        s3_key = os.getenv("AWS_ACCESS_KEY_ID")
+                        s3_secret = os.getenv("AWS_SECRET_ACCESS_KEY")
+                        s3_endpoint = os.getenv("AWS_ENDPOINT_URL_S3") or os.getenv("AWS_S3_ENDPOINT")
+                        if s3_key:
+                            conn.execute(f"SET s3_access_key_id='{s3_key}'")
+                        if s3_secret:
+                            conn.execute(f"SET s3_secret_access_key='{s3_secret}'")
+                        if s3_endpoint:
+                            conn.execute(f"SET s3_endpoint='{s3_endpoint.replace('http://', '').replace('https://', '')}'")
+                            if "http://" in s3_endpoint.lower():
+                                conn.execute("SET s3_use_ssl=false")
+
+                    table_name = os.path.splitext(os.path.basename(self.path.split('?')[0]))[0]
+                    conn.execute(f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{self.path}'")
                     tables = [table_name]
-                elif self.datasource_type == DataSourceType.CSV:
-                    table_name = os.path.splitext(os.path.basename(self.path))[0]
-                    conn.execute(
-                        f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{safe_path}'"
-                    )
-                    tables = [table_name]
-                elif self.datasource_type == DataSourceType.DIRECTORY:
-                    for file in os.listdir(self.path):
-                        ext = os.path.splitext(file)[1].lower()
-                        if ext in [".parquet", ".csv"]:
-                            table_name = os.path.splitext(file)[0]
-                            file_path = os.path.join(self.path, file).replace("\\", "/")
-                            conn.execute(
-                                f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{file_path}'"
-                            )
-                            tables.append(table_name)
-                elif self.datasource_type == DataSourceType.DUCKDB:
-                    # For DuckDB, get existing tables
-                    result = conn.execute(
-                        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'main'"
-                    ).fetchall()
-                    tables = [row[0] for row in result]
                 else:
-                    raise SchemaError(f"Unsupported datasource type: {self.datasource_type}")
+                    safe_path = self.path.replace("\\", "/")
+                    if self.datasource_type == DataSourceType.PARQUET:
+                        table_name = os.path.splitext(os.path.basename(self.path))[0]
+                        conn.execute(
+                            f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{safe_path}'"
+                        )
+                        tables = [table_name]
+                    elif self.datasource_type == DataSourceType.CSV:
+                        table_name = os.path.splitext(os.path.basename(self.path))[0]
+                        conn.execute(
+                            f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{safe_path}'"
+                        )
+                        tables = [table_name]
+                    elif self.datasource_type == DataSourceType.DIRECTORY:
+                        for file in os.listdir(self.path):
+                            ext = os.path.splitext(file)[1].lower()
+                            if ext in [".parquet", ".csv"]:
+                                table_name = os.path.splitext(file)[0]
+                                file_path = os.path.join(self.path, file).replace("\\", "/")
+                                conn.execute(
+                                    f"CREATE OR REPLACE TABLE {table_name} AS SELECT * FROM '{file_path}'"
+                                )
+                                tables.append(table_name)
+                    elif self.datasource_type == DataSourceType.DUCKDB:
+                        # For DuckDB, get existing tables
+                        result = conn.execute(
+                            "SELECT table_name FROM information_schema.tables WHERE table_schema = 'main'"
+                        ).fetchall()
+                        tables = [row[0] for row in result]
+                    else:
+                        raise SchemaError(f"Unsupported datasource type: {self.datasource_type}")
 
             # Introspect each table
             table_infos = []

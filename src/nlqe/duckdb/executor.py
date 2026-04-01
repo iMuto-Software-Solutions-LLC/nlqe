@@ -13,6 +13,7 @@ from nlqe.utils import (
     SQLSchemaError,
     SQLSyntaxError,
     get_logger,
+    is_remote_path,
 )
 
 logger = get_logger(__name__)
@@ -110,6 +111,34 @@ class DuckDBExecutor:
 
         if not isinstance(self.datasource_path, str):
             raise TypeError(f"Unsupported datasource config type: {type(self.datasource_path)}")
+
+        # Handle remote files
+        if is_remote_path(self.datasource_path):
+            logger.info(f"Loading remote datasource: {self.datasource_path}")
+            conn.execute("INSTALL httpfs; LOAD httpfs;")
+            
+            # Basic cloud configuration from environment
+            if "s3://" in self.datasource_path.lower():
+                s3_key = os.getenv("AWS_ACCESS_KEY_ID")
+                s3_secret = os.getenv("AWS_SECRET_ACCESS_KEY")
+                s3_region = os.getenv("AWS_REGION")
+                s3_endpoint = os.getenv("AWS_ENDPOINT_URL_S3") or os.getenv("AWS_S3_ENDPOINT")
+                
+                if s3_key:
+                    conn.execute(f"SET s3_access_key_id='{s3_key}'")
+                if s3_secret:
+                    conn.execute(f"SET s3_secret_access_key='{s3_secret}'")
+                if s3_region:
+                    conn.execute(f"SET s3_region='{s3_region}'")
+                if s3_endpoint:
+                    conn.execute(f"SET s3_endpoint='{s3_endpoint.replace('http://', '').replace('https://', '')}'")
+                    if "http://" in s3_endpoint.lower():
+                        conn.execute("SET s3_use_ssl=false")
+            
+            self._table_name = os.path.splitext(os.path.basename(self.datasource_path.split('?')[0]))[0]
+            conn.execute(f"CREATE TABLE {self._table_name} AS SELECT * FROM '{self.datasource_path}'")
+            logger.info(f"Loaded remote datasource into table {self._table_name}")
+            return
 
         if os.path.isdir(self.datasource_path):
             for file in os.listdir(self.datasource_path):
