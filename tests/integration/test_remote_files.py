@@ -151,21 +151,41 @@ def test_azure_introspection_and_query(azure_config):
 
 
 def test_http_introspection_and_query():
-    """Test pipeline against HTTP URL."""
-    url = "https://raw.githubusercontent.com/duckdb/duckdb/master/data/parquet-testing/amendments.parquet"
+    """Test pipeline against HTTP URL using a local background server."""
+    import threading
+    from http.server import HTTPServer, SimpleHTTPRequestHandler
+
+    class QuietHandler(SimpleHTTPRequestHandler):
+        def log_message(self, format, *args):
+            pass
+
+    port = 8085
+    server = HTTPServer(("127.0.0.1", port), QuietHandler)
+    thread = threading.Thread(target=server.serve_forever)
+    thread.daemon = True
+    thread.start()
 
     try:
-        import requests
+        url = f"http://127.0.0.1:{port}/fixtures/transactions.parquet"
 
-        r = requests.head(url, timeout=5)
-        if r.status_code != 200:
-            pytest.skip("Public test URL not reachable")
-    except Exception:
-        pytest.skip("Network or requests unavailable")
+        import urllib.request
 
-    engine = QueryEngine(QueryEngineConfig())
-    schema = engine.load_datasource(url)
+        try:
+            req = urllib.request.Request(url, method="HEAD")
+            urllib.request.urlopen(req, timeout=2)
+        except Exception:
+            pytest.skip("Local test HTTP server not reachable")
 
-    assert schema.datasource_type == "parquet"
-    assert len(schema.tables) == 1
-    assert schema.tables[0].name == "amendments"
+        engine = QueryEngine(QueryEngineConfig())
+        schema = engine.load_datasource(url)
+
+        assert schema.datasource_type == "parquet"
+        assert len(schema.tables) == 1
+        assert schema.tables[0].name == "transactions"
+
+        response = engine.query("How many transactions are there?")
+        assert response.result_rows > 0
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=1)
